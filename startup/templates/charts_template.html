@@ -1,0 +1,43 @@
+<div class="card">
+    <div class="container flex" style="margin-top: 12px; margin-bottom: 12px; margin-right:0px">
+        <div id="chart-maximize" maximized="false">
+            <span class="float-right" data-feather="maximize" style="cursor:pointer" onclick="maximize_minimize_charts()" ></span>
+        </div>
+    </div>
+<div id="tabs" class="project-tab container flex">
+            <div class="container" >
+                <div class="row">
+                    <div class="col-lg-12">
+                        <nav class="scroll card" style="padding: 5px">
+                            <div class="nav nav-tabs nav-fill scroll" id="nav-tab" role="tablist">
+                                {% for per in performance %}
+                                <a class="nav-item nav-link {% if forloop.counter == 1 %}active{% endif %}"
+                                   id="n-{{forloop.counter}}-tab" data-toggle="tab"
+                                   href="#n-{{forloop.counter}}" role="tab" aria-controls="n-{{forloop.counter}}"
+                                   aria-selected="{% if forloop.counter == 1 %}true{% else %}false{% endif %}"
+                                    style="min-width: 40%">
+                                {{per.performance_index}}</a>
+                                {% endfor %}
+                            </div>
+                        </nav>
+                        <div class="tab-content" id="nav-tabContent">
+                            {% for per in performance %}
+                            <div class="tab-pane fade {% if forloop.counter == 1 %}show active{% endif %}" id="n-{{forloop.counter}}" role="tabpanel"
+                                 aria-labelledby="n-{{forloop.counter}}-tab">
+                                <canvas id="performance-chart-{{forloop.counter}}">
+
+                                </canvas>
+                            </div>
+                            {% endfor %}
+                            <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                                B
+                            </div>
+                            <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                                C
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
