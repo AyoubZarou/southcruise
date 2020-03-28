@@ -7,14 +7,14 @@
 }
 .project-tab #tabs .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
     color: #000000;
-    background-color: transparent;
+    background-color: #EEEEEE;
     border-color: #444444 #444444 #f3f3f3 #444444;
     border-bottom: 1px solid !important;
     font-size: 16px;
     font-weight: bold;
 }
 .project-tab .nav-link {
-    border: 1px solid transparent;
+    border: 1px solid #EEEEEE;
     border-top-left-radius: .25rem;
     border-top-right-radius: .25rem;
     color: #444444;

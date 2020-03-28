@@ -1,5 +1,5 @@
       window.onload = function () {
-
+         $('#minimizer-icon-charts').css('display', 'none');
          var codes = {{codes|safe}};
          for (var key in codes ){
           $("svg #" + key).attr('title', codes[key]['name'])
@@ -70,18 +70,22 @@
             $('#startup-detailed-detail').css('display', 'block');
         }
       }
-      var maximize_minimize_charts = function(){
+      var maximize_minimize_charts = function(that){
       let maximized = $('#chart-maximize').attr("maximized")
       if (maximized=="false"){
         $('#africa-svg-div').css('display', 'none');
         $('#charts-div').removeClass('col-md-8');
         $('#charts-div').addClass('col-md-12');
         $('#chart-maximize').attr("maximized", 'true');
+        $('#maximizer-icon-charts').css('display', 'none');
+        $('#minimizer-icon-charts').css('display', 'block');
         }
         else {
         $('#africa-svg-div').css('display', 'block');
         $('#charts-div').addClass('col-md-8');
         $('#charts-div').removeClass('col-md-12');
-        $('#chart-maximize').attr("maximized", "false")
+        $('#chart-maximize').attr("maximized", "false");
+        $('#maximizer-icon-charts').css('display', 'block');
+        $('#minimizer-icon-charts').css('display', 'none');
         }
       }

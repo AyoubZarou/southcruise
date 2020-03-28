@@ -8,9 +8,9 @@ import numpy as np
 import random
 
 django.setup()
-from startup.models import Countries, CountryPerformance, Startup
+from startup.models import Countries, CountryPerformance, Startup, PerformanceIndex
 
-# Countries.objects.all().delete()
+Countries.objects.all().delete()
 CountryPerformance.objects.all().delete()
 Startup.objects.all().delete()
 path = 'C:\\Users\\ZAROU\\Desktop\\RE Candidature AXA stage Online Machine learning tarifaire\\API_NY.GDP.MKTP.KD.ZG_DS2_en_csv_v2_887216.csv'
@@ -41,12 +41,15 @@ def generate_name():
     i = random.randint(3, 10)
     return "".join(np.random.choice(str_list, i))
 
+for country, country_name in countries_code.items():
+    Countries(country_code=country, country_name=country_name).save()
 
 for p in names:
     df = pd.read_csv(os.path.join(path, p), skiprows=3)
     df = df.set_index(['Country Code'])
     cols = df.columns.str.isnumeric()
-    performance_index = df['Indicator Name'].iloc[0]
+    performance_index = PerformanceIndex(name=df['Indicator Name'].iloc[0])
+    performance_index.save()
     df = df.loc[:, cols].stack().dropna().reset_index().rename({'level_1': 'year'}, axis=1)
     for country, country_name in countries_code.items():
         sub_df = df[df['Country Code'] == country]

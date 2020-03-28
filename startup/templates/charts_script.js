@@ -17,7 +17,6 @@ $(function() {
     $(target).show();
     e.preventDefault();
   });
-
   $tabSelect.on('change', function() {
     var target = $(this).val(),
         targetSelectNum = $(this).prop('selectedIndex');
@@ -27,36 +26,46 @@ $(function() {
     $tabContents.hide();
     $(target).show();
   });
-    console.log('dada')
     var datasets;
     var data = {{performance|safe}};
     var colors = {{colors|safe}};
     console.log(colors)
     var datasets_set = []
     var years = [];
-    var indicator_values
-    for (var l in data){
+    var indicator_values;
+    var per_index_ids = []
+    var idx;
+        var ctx;
+    var n;
+    var True = true;
+    var False = false;
+    var charts_data = {{indexes|safe}};
+    var to_push;
+    for (var l=0; l<data.length; l++){
         datasets = [];
         indicator_values = data[l]['value'];
+        idx = '' + data[l]['performance_index_id']
         for (var country in indicator_values){
-            datasets.push({data: indicator_values[country][2],
+            to_push = {data: indicator_values[country][2],
                             label: indicator_values[country][1],
-                            backgroundColor: colors[indicator_values[country][0]]})
-
+                            borderColor: colors[indicator_values[country][0]],
+                            }
+            if (charts_data[idx]['type'] == "bar"){
+                to_push['backgroundColor'] = colors[indicator_values[country][0]];
+            }
+            datasets.push(to_push)
         }
         console.log(datasets)
         years.push(data[l]['year'])
         datasets_set.push(datasets)
     }
-    var ctx;
-    var n;
-    for (var l in datasets_set){
-        n = parseInt(l)+ 1
-        console.log("#performance-chart-" + n)
+
+    for (n=1; n<datasets_set.length +1; n++){
         ctx = $("#performance-chart-" + n)[0].getContext('2d');
-        new Chart(ctx, {"type": 'bar',
+        idx = '' + data[n-1]['performance_index_id']
+        new Chart(ctx, {"type": charts_data[idx]['type'],
                 data: { labels: years[n-1],
-                    datasets: datasets_set[n-1]
+                    datasets: datasets_set[n-1],
                     },
                 options:{}})
     }

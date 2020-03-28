@@ -11,11 +11,16 @@ class Countries(models.Model):
         return self.country_name
 
 
+class PerformanceIndex(models.Model):
+    name = models.CharField(max_length=200)
+
+
+
 class CountryPerformance(models.Model):
     country = models.ForeignKey(Countries, on_delete=models.CASCADE)
     year = models.IntegerField()
     value = models.FloatField()
-    performance_index = models.CharField(max_length=200)
+    performance_index = models.ForeignKey(PerformanceIndex, on_delete=models.CASCADE)
 
 
 class Startup(models.Model):
@@ -25,6 +30,3 @@ class Startup(models.Model):
     creation_date = models.DateTimeField()
     number_of_employees = models.IntegerField()
     website = models.URLField()
-
-
-
