@@ -21,7 +21,7 @@ var update_charts_fields = function(refresh){
     }
     var c = {}
     c['data'] = JSON.stringify(context);
-    console.log(c['data'])
+    c['target'] = 'country_charts'
    c['csrfmiddlewaretoken'] = '{{csrf_token}}'
    console.log(context)
    $.ajax({

@@ -18,7 +18,7 @@
                                    id="n-{{forloop.counter}}-tab" data-toggle="tab"
                                    href="#n-{{forloop.counter}}" role="tab" aria-controls="n-{{forloop.counter}}"
                                    aria-selected="{% if forloop.counter == 1 %}true{% else %}false{% endif %}"
-                                    style="min-width: 40%">
+                                    style="min-width: 40%; max-height: 40px">
                                 {{per.performance_index}}</a>
                                 {% endfor %}
                             </div>
