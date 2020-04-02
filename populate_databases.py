@@ -13,7 +13,7 @@ from startup.models import Countries, CountryPerformance, Startup, PerformanceIn
 Countries.objects.all().delete()
 CountryPerformance.objects.all().delete()
 Startup.objects.all().delete()
-path = 'C:\\Users\\ZAROU\\Desktop\\RE Candidature AXA stage Online Machine learning tarifaire\\API_NY.GDP.MKTP.KD.ZG_DS2_en_csv_v2_887216.csv'
+
 countries_code = {'AGO': 'Angola', 'BDI': 'Burundi', 'BEN': 'Benin', 'BFA': 'Burkina Faso', 'BWA': 'Botswana',
                   'CAF': 'Central African Republic',
                   'CIV': "Cote d'Ivoire", 'CMR': 'Cameroon', 'COD': 'Congo Democratic Republic',
@@ -40,6 +40,7 @@ str_list = list('AZERTYUIOPMLJHGDSQWXCVBN')
 def generate_name():
     i = random.randint(3, 10)
     return "".join(np.random.choice(str_list, i))
+
 
 for country, country_name in countries_code.items():
     Countries(country_code=country, country_name=country_name).save()
