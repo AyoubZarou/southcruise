@@ -82,10 +82,12 @@ def get_context_query(context):
 
 
 def get_country_performance(country_list, context={}):
+    print(country_list)
     query = Q(country__country_code=country_list[0])
     for country in country_list[1:]:
         query = query | Q(country__country_code=country)
     context_query = get_context_query(context)
+    print(context_query)
     performance_objects = CountryPerformance.objects.filter(query & context_query)
     l = []
     country_names = set()
@@ -97,6 +99,8 @@ def get_country_performance(country_list, context={}):
              "country_code": ob.country.country_code}
         l.append(d)
     df = pd.DataFrame.from_records(l)
+    print(df.head(3))
+    print("# # ")
     aggregated = df.groupby(['performance_index', 'country_code']).agg({"country_name": 'first',
                                                                         'year': lambda x: x.to_list(),
                                                                         'value': lambda x: x.to_list()})
