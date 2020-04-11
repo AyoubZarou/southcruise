@@ -32,7 +32,7 @@ countries_code = {'AGO': 'Angola', 'BDI': 'Burundi', 'BEN': 'Benin', 'BFA': 'Bur
                   'SSD': 'Sounth Sudan'}
 
 path = "C:\\Users\\ZAROU\\Desktop\\data"
-names = os.listdir(path)
+names = [*filter(lambda x: x.endswith('.csv'), os.listdir(path)), ]
 NB_STARTUP_RANGE = [10, 20]
 str_list = list('AZERTYUIOPMLJHGDSQWXCVBN')
 

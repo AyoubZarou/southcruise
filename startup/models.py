@@ -13,7 +13,11 @@ class Countries(models.Model):
 
 class PerformanceIndex(models.Model):
     name = models.CharField(max_length=200)
+    category = models.CharField(max_length=200, default="")
+    updated_weight = models.FloatField(default=0.0)
 
+    def __str__(self):
+        return self.name
 
 
 class CountryPerformance(models.Model):
@@ -21,6 +25,9 @@ class CountryPerformance(models.Model):
     year = models.IntegerField()
     value = models.FloatField()
     performance_index = models.ForeignKey(PerformanceIndex, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.country} : {self.performance_index}'
 
 
 class Startup(models.Model):
@@ -30,3 +37,16 @@ class Startup(models.Model):
     creation_date = models.DateTimeField()
     number_of_employees = models.IntegerField()
     website = models.URLField()
+
+    def __str__(self):
+        return self.name
+
+
+class StrartupPerformance(models.Model):
+    startup = models.ForeignKey(Startup, on_delete=models.CASCADE)
+    index = models.CharField(max_length=200)
+    year = models.IntegerField()
+    value = models.FloatField()
+
+    def __str__(self):
+        return f'{self.startup}: {self.index}'
