@@ -40,6 +40,15 @@ $(function() {
     var True = true;
     var False = false;
     var charts_data = {{indexes|safe}};
+    function merge_dicts(d){
+        let values = Object.values(charts_data)
+        return values.reduce(function (r, o) {
+                Object.keys(o).forEach(function (k) { r[k] = o[k]; });
+                return r;
+    }, {});
+    return values
+    }
+    charts_data = merge_dicts(charts_data);
     var to_push;
     for (var l=0; l<data.length; l++){
         datasets = [];

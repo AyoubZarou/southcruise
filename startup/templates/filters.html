@@ -9,7 +9,17 @@
         </button>
       </div>
       <div class="modal-body scroll" id="include-charts" style="height: 500px">
-          {% for el, value in indexes.items %}
+          {% for cat, val in indexes.items %}
+        <div class="card-header" id="heading-fo-{{cat}}">
+          <h2 class="mb-0">
+            <button class="btn btn-link" type="button" data-toggle="collapse"
+                    data-target="#filter-for-{{cat}}" aria-expanded="true" aria-controls="filter-for-{{cat}}">
+              {{cat}}
+            </button>
+          </h2>
+        </div>
+            {% for el, value in val.items %}
+        <div id="filter-for-{{cat}}" class="collapse" aria-labelledby="heading-fo-{{cat}}" data-parent="#include-charts">
           <div class="card" style="padding: 3%">
             <div class="form-group">
               <div class="container">
@@ -37,7 +47,10 @@
           </select>
         </div>
           </div>
+        </div>
+
           {% endfor %}
+        {% endfor %}
         </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal", onclick="update_charts_fields(true)">Save and refresh</button>

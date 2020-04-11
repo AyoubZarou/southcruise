@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import random
 from matplotlib.pyplot import get_cmap
-
+from collections import defaultdict
 
 
 def random_color():
@@ -34,11 +34,20 @@ def get_colors(country_list):
     mapped = [', '.join(c) for c in colors.astype(str)]
     return {country: f'rgba({mapped[i]}, {co[i, -1]})' for i, country in enumerate(country_list)}
 
+def unpivot_context(context):
+    d = defaultdict(dict)
+    for id_, values in context.items():
+        category = values.pop('category')
+        d[category][id_] = values
+    return dict(d)
+
 
 def get_indexes():
     indexes = PerformanceIndex.objects.all()
-    return {index_el.id: {"name": index_el.name, 'checked': True,
-                          'range': [2000, 2020], 'type': random.choice(['bar', 'line'])} for index_el in indexes}
+    c = {index_el.id: {"name": index_el.name, 'checked': True,
+                          'range': [2000, 2020], 'type': random.choice(['bar', 'line']),
+                          "category": index_el.category} for index_el in indexes}
+    return unpivot_context(c)
 
 
 def index(request):
@@ -56,6 +65,7 @@ def index(request):
         return render(request, 'index.html', {"codes": d})
     else:
         country_list = request.GET['country'].split(',')
+        print("context is:", context)
         return render(request, 'index.html', {"codes": d,
                                               'performance': get_country_performance(country_list,
                                                                                      context=context),
@@ -73,21 +83,22 @@ def get_years_query(year_range):
 
 def get_context_query(context):
     ret = Q()
-    for index_el in context:
-        if context[index_el]['checked']:
-            q_years = get_years_query(context[index_el]['range'])
-            q_index = Q(performance_index__id=index_el)
-            ret = ret | (q_index & q_years)
+    print(context)
+    for category, category_values in context.items():
+        print("category value is", category_values)
+        for index_el in category_values:
+            if category_values[index_el]['checked']:
+                q_years = get_years_query(category_values[index_el]['range'])
+                q_index = Q(performance_index__id=index_el)
+                ret = ret | (q_index & q_years)
     return ret
 
 
 def get_country_performance(country_list, context={}):
-    print(country_list)
     query = Q(country__country_code=country_list[0])
     for country in country_list[1:]:
         query = query | Q(country__country_code=country)
     context_query = get_context_query(context)
-    print(context_query)
     performance_objects = CountryPerformance.objects.filter(query & context_query)
     l = []
     country_names = set()
@@ -99,8 +110,6 @@ def get_country_performance(country_list, context={}):
              "country_code": ob.country.country_code}
         l.append(d)
     df = pd.DataFrame.from_records(l)
-    print(df.head(3))
-    print("# # ")
     aggregated = df.groupby(['performance_index', 'country_code']).agg({"country_name": 'first',
                                                                         'year': lambda x: x.to_list(),
                                                                         'value': lambda x: x.to_list()})

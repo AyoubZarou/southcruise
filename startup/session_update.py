@@ -1,4 +1,6 @@
 import json
+from startup.models import PerformanceIndex
+from collections import defaultdict
 
 
 def update_country_charts_session(data, request):
@@ -9,4 +11,8 @@ def update_country_charts_session(data, request):
     """
     context = json.loads(data)
     context = {int(key): context[key] for key in context}
-    request.session['charts_data'] = context
+    d = defaultdict(dict)
+    for key, v in context.items():
+        category = PerformanceIndex.objects.get(pk=key).category
+        d[category][key] = v
+    request.session['charts_data'] = dict(d)
