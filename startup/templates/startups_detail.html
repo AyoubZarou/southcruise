@@ -1,42 +1,74 @@
 
-<div class="row">
-<div class="col-12" id="grid-startup-detail">
-<table data-toggle="table" data-pagination="true" >
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th >Country</th>
-        <th>Capital</th>
-        <th>Creation date</th>
-        <th>Number of employees</th>
-        <th>Website</th>
-    </tr>
-    </thead>
-    <tbody>
-        {%for row in startups %}
-        <tr>
-            <td ><span onclick="show_global_startup_detail(this)" refers-to="startup-detailed-{{row.name}}"
-            style="cursor:pointer">
-                {{row.name}} </span></td>
-            <td><span class="badge badge-pill badge-primary badge-{{row.country__country_code}}">
-                {{row.country__country_name}}</span></td>
-            <td>{{row.capital|floatformat}} $</td>
-            <td>{{row.creation_date|date:'M  Y'}}</td>
-            <td>{{row.number_of_employees}}</td>
-            <td> <a href="{{row.website}}">{{row.website}}</a></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-
-</table>
-</div>
+<div class="row" style="margin-bottom: 100px">
+  {% include "startups_table.html" %}
     <div class="col-5"  id="startup-detailed-detail" style="display:none">
-        {%for row in startups %}
-        <div class="card startup-detail-card"  id="startup-detailed-{{row.name}}"
-             style="display:none; padding: 10%">
-            <h3>{{row.name}} </h3> <p> is a startup based in {{row.country__country_name}} created in {{row.creation_date|date:'M  Y'}}
-            and with capital of {{row.capital|floatformat}} $ having {{row.number_of_employees}} employees </p>
-            <p> visit at <a href="{{row.website}}">{{row.website}}</a></p>
+        {%for row in startups_full_view %}
+        <div class="card startup-detail-card"  id="startup-detailed-{{row.id}}"
+             style="display:none">
+                <div class="card" style="width: 100%; padding-bottom: 5px">
+                    <h5 class="card-header">{{row.name}} <span class="badge badge-primary float-right">{{row.country__country_name}}
+                    </span></h5>
+                  <div class="card-body">
+
+                    <p class="card-text">{{row.presentation}}</p>
+                      <ul class="list-group list-group-flush">
+                          {% if row.creation_date %}
+                          <li class="list-group-item">
+                              <span data-feather="calendar"></span>
+                              Created on <b>{{row.creation_date}} </b></li>
+                      {% endif %}
+                          {% if row.activity_countries %}
+                          <li class="list-group-item">
+                              Operates in
+                              {%for val in row.activity_countries %}
+                              <span class="badge badge-primary">{{val}}</span> {% endfor %} </li>
+                      {% endif %}
+                          {% if row.reported_net_result %}
+                          <li class="list-group-item">
+                              Reported net result: <b>${{row.reported_net_result}}</b>
+                          </li>
+                          {% endif %}
+                          {% if row.reported_net_debt %}
+                          <li class="list-group-item">
+                              Reported net debt: <b>${{row.reported_net_debt}}</b>
+                          </li>
+                          {% endif %}
+                          {% if row.sectors %}
+                          <li class="list-group-item">
+                              Sectors
+                              {%for val in row.sectors %}
+                              <span class="badge badge-primary">{{val}}</span> {% endfor %} </li>
+                      {% endif %}
+                          {% if row.partnerships %}
+                          <li class="list-group-item"> Partnerships: <b>{{row.partnerships}}</b></li>
+                          {% endif %}
+                          {% if row.growth_rate %}
+                          <li class="list-group-item">Growth rate: {{row.growth_rate}}</li>
+                          {% endif %}
+                          {% if row.customers %}
+                          <li class="list-group-item">Customers: {{row.customers}}</li>
+                          {% endif %}
+                          {% if row.operationals %}
+                          <li class="list-group-item">Figures: <b>{{row.operationals}} </b></li>
+                          {% endif %}
+                          {% if row.performance %}
+                          <li class="list-group-item">
+                              {% for key, val in row.performance.items %}
+                              <div class="card">
+                                  <h5 class="card-header">{% if key ==  "func_raising" %} Fund raising{% else %}{{key}} {% endif %}</h5>
+                                  <div class="card-body"></div>
+                                  <canvas id="performance-index-{{key}}-{{row.id}}"></canvas>
+                              </div>
+                              {% endfor %}
+                          </li>
+                          {% endif %}
+                      </ul>
+                      {% if row.website %}
+                    <a href="{{row.website}}" class="card-link" target="_blank">Visit website</a>
+                      {% endif %}
+                      {{row}}
+                  </div>
+                </div>
         </div>
         {% endfor %}
 

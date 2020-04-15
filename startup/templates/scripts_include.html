@@ -3,12 +3,21 @@
 <script src="{% static 'tooltipster/dist/js/tooltipster.bundle.min.js' %}"></script>
 <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
 <script src="{%static 'cdnjs.cloudflare.com/ajax/libs/feather-icons/4.9.0/feather.min.js'  %}"></script>
+<script src="{% static 'jquery-ui.js' %}"></script>
+<!--<script src="{% static 'jquery-sortable.js' %}"></script>-->
 <script src="{% static 'cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js' %}"></script>
-<script src="{% static 'bootstrap-table/bootstrap-table.min.js' %}"></script>
-<script src="{%static 'dashboard.js' %}"></script>
+<script src="https://unpkg.com/sortablejs@1.7.0/Sortable.min.js"></script>
+<script src="https://unpkg.com/clusterize.js@0.18.0/clusterize.min.js"></script>
+<!-- include the lib -->
+<script src="https://unpkg.com/frappe-datatable@0.0.5/dist/frappe-datatable.min.js"></script>
+
+<script>{% include 'js/general.js'%}</script>
 <script>{% include 'js/map_form.js'%}</script>
 <script>
     {% include 'js/charts_script.js' %}
+</script>
+<script>
+    {% include 'js/startup_table.js' %}
 </script>
 <script>
     {% include 'js/filter_scripts.js' %}

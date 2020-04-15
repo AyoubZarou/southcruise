@@ -65,7 +65,7 @@
       else {
       $('#startup-detailed-detail .startup-detail-card').css('display', 'none');
         $('#' + referee).css('display', 'block');
-             $('#grid-startup-detail').attr('class', 'col-7');
+             $('#grid-startup-detail').attr('class', 'col-6');
              $('#startup-detailed-detail').css('class', 'col-5');
             $('#startup-detailed-detail').css('display', 'block');
         }

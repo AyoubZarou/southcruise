@@ -16,3 +16,7 @@ def update_country_charts_session(data, request):
         category = PerformanceIndex.objects.get(pk=key).category
         d[category][key] = v
     request.session['charts_data'] = dict(d)
+
+def update_indexes_order_session(data, request):
+    data = json.loads(data)
+    request.session['indexes_order'] = data
