@@ -143,6 +143,7 @@ def get_country_performance(country_list, context={}):
     aggregated = df.groupby(['performance_index', 'country_code']).agg({"country_name": 'first',
                                                                         'year': lambda x: x.to_list(),
                                                                         'value': lambda x: x.to_list()})
+    df = df.drop_duplicates(subset=['performance_index', "performance_index_id", 'country_code', 'country_name', 'year'])
     s = df.set_index(['performance_index', "performance_index_id", 'country_code', 'country_name', 'year']).unstack(
         ['country_code', 'country_name'])['value'].round(2).fillna('null')
     grouped = s.groupby(level=[0, 1])

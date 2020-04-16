@@ -32,3 +32,8 @@ DATA_FIELDS_MAPPER['country__country_name'] = {
      return `<span class="badge badge-pill badge-primary badge-${split[1]}"> ${split[0]} </span>` \
     }'
 }
+
+DATA_FIELDS_MAPPER['sectors'] = {
+    "name": "Sectors",
+    "format": '(value)=>{value = eval(value ); return value.join(`, `)}'
+}

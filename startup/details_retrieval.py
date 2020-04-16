@@ -33,26 +33,24 @@ def select_fields(model_object, l):
 
 def create_frappe_dataset(d, fields_to_include, mapping_values=DATA_FIELDS_MAPPER):
     mapping_values = deepcopy(mapping_values)
-    print('_-'*100)
     columns = []
     concat_mapping = defaultdict(list)
+    general_config = {'editable': False, 'resizable': True,
+            'sortable': False, 'focusable': True}
     for col in fields_to_include:
-        print("*" * 10 + '\n', col, concat_mapping)
         if mapping_values is None or  mapping_values[col] is None:
-            columns.append({"name": col, 'editable': False, 'resizable': True,
-            'sortable': False, 'focusable': True})
+            columns.append({"name": col, **general_config})
         else:
             mapped_value = mapping_values[col]
-            print(mapped_value)
             if 'add_field' in mapped_value:
                 a = mapped_value.pop('add_field')
+                mapped_value.update(general_config)
                 concat_mapping[col] = deepcopy(a)
             columns.append(mapped_value)
     data = []
     for value in d:
         sub_data = []
         for field in fields_to_include:
-            print(field, concat_mapping[col])
             concat_with = concat_mapping[field]
             to_append = []
             for v in [field] + concat_with:
@@ -84,5 +82,5 @@ def startup_details(country_list):
         d['activity_countries'] = [k['country'] for k in startup.startupactivitycountry_set.all().values('country')]
         d['sectors'] = [k['sector'] for k in startup.startupsector_set.all().values('sector')]
         startups.append(filter_and_format(d))
-    fields_to_display = ['name', 'country__country_name', 'website', 'maturity']
+    fields_to_display = ['name', 'country__country_name', 'maturity', 'sectors']
     return startups, create_frappe_dataset(startups, fields_to_display)

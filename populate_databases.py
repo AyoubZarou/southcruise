@@ -13,14 +13,15 @@ django.setup()
 from startup.models import (Countries, CountryPerformance, Startup, PerformanceIndex, StartupPerformance, \
                         StartupActivityCountry, StartupSector)
 
-TO_REFRESH  = [Startup, StartupPerformance, StartupSector, StartupActivityCountry]
+TO_REFRESH  = [Countries, CountryPerformance, Startup, PerformanceIndex, StartupPerformance,
+                        StartupActivityCountry, StartupSector]
 for model in TO_REFRESH:
     model.objects.all().delete()
 
 countries_code = {'AGO': 'Angola', 'BDI': 'Burundi', 'BEN': 'Benin', 'BFA': 'Burkina Faso', 'BWA': 'Botswana',
                   'CAF': 'Central African Republic',
-                  'CIV': "Cote d'Ivoire", 'CMR': 'Cameroon', 'COD': 'Congo Democratic Republic',
-                  'COG': 'Congo Republic',
+                  'CIV': "Ivory Coast", 'CMR': 'Cameroon', 'COD': 'Democratic Republic of the Congo',
+                  'COG': 'Republic of the Congo',
                   'DJI': 'Djibouti', 'DZA': 'Algeria', 'EGY': 'Egypt', 'ERI': 'Eritrea', 'ETH': 'Ethiopia',
                   'GAB': 'Gabon', 'GHA': 'Ghana', 'GIN': 'Guinea', 'GMB': 'Gambia', 'GNB': 'Guinea-Bissau',
                   'GNQ': 'Equatorial Guinea', 'KEN': 'Kenya', 'LBR': 'Liberia', 'LBY': 'Libya', 'LSO': 'Lesotho',
@@ -31,8 +32,8 @@ countries_code = {'AGO': 'Angola', 'BDI': 'Burundi', 'BEN': 'Benin', 'BFA': 'Bur
                   'SLE': 'Sierra Leone',
                   'SOM': 'Somalia', 'SSD': 'South Sudan', 'TCD': 'Chad', 'TGO': 'Togo', 'TUN': 'Tunisia',
                   'TZA': 'Tanzania',
-                  'UGA': 'Uganda', 'ZAF': 'South Africa', 'ZMB': 'Zambia', 'ZWE': 'Zimbabwe', 'SWZ': 'Eswatini',
-                  'SSD': 'Sounth Sudan'}
+                  'UGA': 'Uganda', 'ZAF': 'South Africa', 'ZMB': 'Zambia', 'ZWE': 'Zimbabwe', 'SWZ': 'Swaziland',
+                  'SSD': 'South Sudan'}
 
 
 # Reporocessing Startup Data
@@ -126,46 +127,81 @@ def dict_values(l):
     return {int(x): y for x, y in zip(a, b) if pd.notna(x) and pd.notna(y)}
 startup_df['fund_raising_dicts'] = [*map(dict_values,  zip(fund_raising_years.values, fund_raising_values.values))]
 
-path = "C:/Users/ZAROU/Desktop/southcruise/southcruise_data"
-print(path)
-categories = [*os.listdir(path), ]
-NB_STARTUP_RANGE = [10, 20]
-str_list = list('AZERTYUIOPMLJHGDSQWXCVBN')
+path = "C:\\Users\\ZAROU\\Desktop\\southcruise_data\\Countries extraction"
+names = os.listdir(path)
+dfs = []
+for name in names:
+    year = int(name.split('_')[-1].split(".")[0])
+    df = pd.read_html(os.path.join(path, name), skiprows=1, header=0)[0]
+    df['year'] = year
+    dfs.append(df)
+countries_performance_df = pd.concat(dfs)
+countries_performance_df['COUNTRY CODE'] = (countries_performance_df['COUNTRY NAME']
+                                            .map({val: key for key, val in countries_code.items()}))
 
 
-def generate_name():
-    i = random.randint(3, 10)
-    return "".join(np.random.choice(str_list, i))
+ECO = "ECONOMIC"
+SOC = "SOCAIL"
+INF = "INFRASTRACTURE"
+
+HIGHER_IS_BETTER_WITH_CAT = {
+ 'GROSS GOVERNMENT DEBT (% OF GDP)': [False, ECO],
+ 'INFLATION, CONSUMER PRICES (ANNUAL %)': [False, ECO],
+ 'GDP, REAL USD (MILLIONS)': [True, ECO],
+ 'FDI, INWARD, % OF GDP': [True, ECO],
+ 'UNEMPLOYMENT RATE, ILO DEFINITION': [False, SOC],
+ 'GDP GROWTH (ANNUAL %)': [True, ECO],
+ 'GDP PER CAPITA (US$)': [True, ECO],
+ 'GDP PER CAPITA GROWTH (ANNUAL %)': [True, ECO],
+ 'IFO POLITICAL INSTABILITY': [False, SOC],
+ 'INDUSTRY, VALUE ADDED (% OF GDP)': [True, ECO],
+ 'INFLATION': [True, ECO],
+ 'LABOR FORCE PARTICIPATION RATE, TOTAL (% OF TOTAL AGES 15-64)': [True, ECO],
+ 'LIFE EXPECTANCY AT BIRTH, TOTAL (YEARS)': [True, SOC],
+ 'LONG-TERM UNEMPLOYMENT (% OF TOTAL UNEMPLOYMENT)': [False, SOC],
+ 'POPULATION, TOTAL': [True, SOC],
+ 'TAX REVENUE (% OF GDP)': [False, ECO],
+ 'TAX REVENUE, CORPORATE (%YOY)': [False, ECO],
+ 'UNEMPLOYMENT RATE (STANDARDIZED)': [False, SOC],
+ 'UNEMPLOYMENT RATE (%YOY, STANDARDIZED)': [False, SOC],
+ 'UNEMPLOYMENT': [False, SOC],
+ 'SAVINGS, PERSONAL SECTOR (%YOY)': [True, SOC],
+ 'POPULATION IN THE LARGEST CITY (% OF URBAN POPULATION)': [True, SOC],
+ 'NET TAXES ON PRODUCTS (US$)': [False, ECO],
+ 'MOBILE CELLULAR SUBSCRIPTIONS (DATA FROM ITU)': [True, SOC],
+ 'MOBILE CELLULAR SUBSCRIPTIONS (PER 100 PEOPLE) (DATA FROM ITU)': [True, SOC],
+ 'LISTED DOMESTIC COMPANIES, TOTAL': [True, ECO],
+ 'LABOR FORCE, TOTAL': [True, SOC],
+ 'INDUSTRY, VALUE ADDED (US$)': [True, ECO],
+ 'GDP PER PERSON EMPLOYED (CONSTANT 1990 PPP $)': [True, ECO],
+ 'GDP PER CAPITA, PPP (CURRENT INTERNATIONAL $)': [True, ECO],
+ 'ENERGY PRODUCTION (KT OF OIL EQUIVALENT)': [True, ECO],
+ 'ENERGY IMPORTS, NET (% OF ENERGY USE)': [False, ECO],
+ 'EMPLOYMENT TO POPULATION RATIO, AGES 15-24, TOTAL (%)': [True, SOC],
+ 'EMPLOYMENT IN SERVICES (% OF TOTAL EMPLOYMENT)': [True, ECO],
+}
+
 
 if Countries in TO_REFRESH:
     for country, country_name in countries_code.items():
         Countries(country_code=country, country_name=country_name).save()
 
 if CountryPerformance in TO_REFRESH:
-    for category in categories:
-        cat_path = os.path.join(path, category)
-        cat_csvs_higher = os.listdir(os.path.join(cat_path, 'higher_is_better'))
-        cat_csvs_smaller = os.listdir(os.path.join(cat_path, 'smaller_is_better'))
-        for cat_csvs, higher_is_better, sub_path in zip([cat_csvs_higher, cat_csvs_smaller],
-                                                        [True, False], ['higher_is_better', 'smaller_is_better']):
-            for p in cat_csvs:
-                df = pd.read_csv(os.path.join(cat_path, sub_path,  p), skiprows=3)
-                df = df.set_index(['Country Code'])
-                cols = df.columns.str.isnumeric()
-                if PerformanceIndex in TO_REFRESH:
-                    performance_index = PerformanceIndex(name=df['Indicator Name'].iloc[0],
-                                                         category=category, higher_is_better=higher_is_better)
-                    performance_index.save()
-                else:
-                    performance_index = PerformanceIndex.objects.get(name=df['Indicator Name'].iloc[0])
-                df = df.loc[:, cols].stack().dropna().reset_index().rename({'level_1': 'year'}, axis=1)
-                for country, country_name in countries_code.items():
-                    sub_df = df[df['Country Code'] == country]
-                    country_ = Countries.objects.get(country_code=country)
-                    for _, row in sub_df.iterrows():
-                        cp = CountryPerformance(country=country_, year=row['year'], value=row[0],
-                                                performance_index=performance_index)
-                        cp.save()
+    groups = countries_performance_df.groupby('COUNTRY CODE').groups
+    for col, (higher_is_better, category) in HIGHER_IS_BETTER_WITH_CAT.items():
+        print(col)
+        performance_index = PerformanceIndex(name=col, category=category,
+                                             higher_is_better=higher_is_better)
+        performance_index.save()
+        for country_code, idx in groups.items():
+            s = countries_performance_df.loc[idx, [col,'year']]
+            s = s.dropna(subset=[col])
+            country = Countries.objects.get(country_code=country_code)
+            for i, series in s.iterrows():
+                val, year = series.values
+                cp = CountryPerformance(country=country, year=year, value=val,
+                            performance_index=performance_index)
+                cp.save()
 
 if Startup in TO_REFRESH:
     cols_to_exclude = ['activity_countries', "sector_values", "fund_raising",
@@ -187,27 +223,3 @@ if Startup in TO_REFRESH:
         if type(da.activity_countries) is list:
             for country in da.activity_countries:
                 StartupActivityCountry(startup=startup, country=country).save()
-
-# for p in names:
-#     df = pd.read_csv(os.path.join(path, p), skiprows=3)
-#     df = df.set_index(['Country Code'])
-#     cols = df.columns.str.isnumeric()
-#     performance_index = PerformanceIndex(name=df['Indicator Name'].iloc[0])
-#     performance_index.save()
-#     df = df.loc[:, cols].stack().dropna().reset_index().rename({'level_1': 'year'}, axis=1)
-#     for country, country_name in countries_code.items():
-#         sub_df = df[df['Country Code'] == country]
-#         country_ = Countries.objects.get(country_code=country)
-#         n_startups = random.randint(*NB_STARTUP_RANGE)
-#         for i in range(n_startups):
-#             star = Startup(country=country_, name=generate_name(), capital=np.random.uniform(10000, 100000),
-#                            number_of_employees=np.random.randint(2, 30),
-#                            creation_date=timezone.now() - timezone.timedelta(days=np.random.randint(100, 2000)),
-#                            website='www.testexample.com')
-#
-#             print(country_.country_name, star.name)
-#             star.save()
-#         for _, row in sub_df.iterrows():
-#             cp = CountryPerformance(country=country_, year=row['year'], value=row[0],
-#                                     performance_index=performance_index)
-#             cp.save()
