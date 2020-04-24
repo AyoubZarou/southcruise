@@ -1,0 +1,59 @@
+<div class="modal fade" id="country-filter-model" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel1">country</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body scroll" id="include-charts" style="height: 500px">
+                {% for cat, val in indexes.items %}
+                <div class="card-header" id="heading-fo-{{cat}}">
+                    <h2 class="mb-0">
+            <button class="btn btn-link" type="button" data-toggle="collapse"
+                    data-target="#filter-for-{{cat}}" aria-expanded="true" aria-controls="filter-for-{{cat}}">
+              {{cat}}
+            </button>
+          </h2>
+                </div>
+                {% for el, value in val.items %}
+                <div id="filter-for-{{cat}}" class="collapse" aria-labelledby="heading-fo-{{cat}}" data-parent="#include-charts">
+                    <div class="card" style="padding: 3%">
+                        <div class="form-group">
+                            <div class="container">
+                                <input class="form-check-input" type="checkbox" value="{{el}}" name="{{value.name}}" {% if value.checked %}checked="true" {% endif %} id="include-chart-{{el}}">
+                                <label class="form-check-label" for="include-chart-{{el}}">
+                                    {{value.name}}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-4">
+                                    <p> since <span id="year-since-{{el}}">{{value.range.0}} </span></p>
+                                </div>
+                                <div class="col-8">
+                                    <input type="range" class="custom-range" min="2010" max="2020" step="1" id="year-range-{{el}}" refers-to="{{el}}" value="{{value.range.0}}" onchange="update_year_since(this)">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="plot-type-{{el}}">Plot type</label>
+                            <select class="form-control" id="plot-type-{{el}}" refers-to="{{el}}">
+                                <option {%if value.type == "bar" %}selected="true" {% endif %}>bar</option>
+                                <option {%if value.type == "line" %}selected="true" {% endif %}>line</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                {% endfor %} {% endfor %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="update_charts_fields(true)">Save and refresh</button>
+                <button type="button" class="btn btn-primary" onclick="update_charts_fields(false)"> Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,17 +1,14 @@
- <div class="row" style="margin: 10px">
-        <div class="row col-md-10 shadow-sm border rounded" id="selected-countries" width="900" height="380">
-            {%for key, value in codes.items %}
-            <div class="shadow-sm no-gutters border rounded col-3 flex-wrap"
-                 style="max-width: 300px; display: none; margin: 2px; background-color: {{value.color}}"
-                 id="selected-country-{{key}}" refers-to="{{key}}"> {{value.name}}
-            <span aria-hidden="true" onclick="delete_country_from_selection(this)"
-                  style='cursor: pointer'
-                  class="float-right" id="delete-country-{{key}}" refers-to="{{key}}">&times;</span>
-            </div>
-            {% endfor %}
+<!-- Used to display selected countries-->
+<div class="row" style="margin: 10px">
+    <div class="row col-md-10 shadow-sm border rounded" id="selected-countries" width="900" height="380">
+        {%for key, value in codes.items %}
+        <div class="shadow-sm no-gutters border rounded col-3 flex-wrap" style="max-width: 300px; display: none; margin: 2px; background-color: {{value.color}}" id="selected-country-{{key}}" refers-to="{{key}}"> {{value.name}}
+            <span aria-hidden="true" onclick="delete_country_from_selection(this)" style='cursor: pointer' class="float-right" id="delete-country-{{key}}" refers-to="{{key}}">&times;</span>
         </div>
-        <div class="col-md-2">
-            <button class="btn btn-dark float-right" onclick="update_countries()">
-                refresh <span data-feather="refresh-cw"></span></button>
-        </div>
- </div>
+        {% endfor %}
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-dark float-right" onclick="update_countries()">
+            refresh <span data-feather="refresh-cw"></span></button>
+    </div>
+</div>

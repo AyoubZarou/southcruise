@@ -1,15 +1,14 @@
 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
     {% include 'before_dash.html' %}
     <div class="row">
-      <div class="col-md-4 shadow-sm no-gutters border rounded" id="africa-svg-div" width="900" height="380">
-        {% include 'africa_svg.html' %}
-      </div >
+        <div class="col-md-4 shadow-sm no-gutters border rounded" id="africa-svg-div" width="900" height="380">
+            {% include 'africa_svg.html' %}
+        </div>
         <div class="col-md-8" id="charts-div">
-            {%  include 'charts_template.html' %}
+            {% include 'charts_template.html' %}
         </div>
     </div>
     {% include 'countries_selection.html' %}
-      <h2>Startup details</h2>
-    {% include 'startups_detail.html' %}
+    <h2>Startup details</h2> {% include 'startups_detail.html' %}
 </main>
 {% include 'filters.html' %}

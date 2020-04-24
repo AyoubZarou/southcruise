@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-DATA_FIELDS_MAPPER = defaultdict(lambda: None)
+DATA_FIELDS_MAPPER = defaultdict(lambda: {})
 
 DATA_FIELDS_MAPPER['website'] = {
     "name": "website",

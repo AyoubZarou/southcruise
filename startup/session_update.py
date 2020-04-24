@@ -1,5 +1,5 @@
 import json
-from startup.models import PerformanceIndex
+from startup.models import PerformanceIndex, OrderOpinion
 from collections import defaultdict
 
 
@@ -7,7 +7,7 @@ def update_country_charts_session(data, request):
     """ Update the session of the user to include what charts he wants to display
     :param data: data to update the session with, in a form of a dumped json
     :param request: the request object, it contains the session object to update
-    the data has the form {chart_id:int: {year_range, chart_type, include_chart}}
+    the data has the form {chart_id:int: {year_range, chart_type, include_chart: bool}}
     """
     context = json.loads(data)
     context = {int(key): context[key] for key in context}
@@ -17,6 +17,30 @@ def update_country_charts_session(data, request):
         d[category][key] = v
     request.session['charts_data'] = dict(d)
 
+
+def _process_weights(w):
+    l = []
+    remain = 100
+    for _w in w[:-1]:
+        l.push(int(remain * _w / 100))
+        remain -= remain * _w / 100
+    l.push(int(remain))
+    return l
+
+
 def update_indexes_order_session(data, request):
     data = json.loads(data)
-    request.session['indexes_order'] = data
+    print("data is", data, type(data))
+    # weights = _process_weights(data['weights'])
+
+    print("ORDER IS", "*" * 10, '\n', data, type(data))
+    session_id = '_SessionBase__session_key'
+    # opinion = OrderOpinion(session_key=getattr(request.session, session_id), order=json.dumps(data))
+    # opinion.save()
+    request.session['indexes_order'] = dict(zip(data['id'], data['weights']))
+    print(request.session["indexes_order"], 'after')
+
+
+def update_startup_filters_session(data, request):
+    data = json.loads(data)
+    request.session['startup_filters'] = data

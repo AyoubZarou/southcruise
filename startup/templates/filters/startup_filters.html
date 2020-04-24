@@ -1,0 +1,95 @@
+<div class="modal fade" id="startup-filter-model" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel2">Startup filters</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
+                    <li class="list-group-item">
+
+                        <input class="form-check-input" type="checkbox" {%if startup_filters.is_impact %}checked="true" {% endif %} id="is-impact" style="margin-left: 5px">
+                        <label class="form-check-label" for="is-impact" style="margin-left: 30px">
+                            Startup with Impact
+                        </label>
+                    </li>
+                    <li class="list-group-item">
+                        <input class="form-check-input" type="checkbox" {%if startup_filters.is_innovation %} checked="true" {% endif %} id="is-innovation" style="margin-left: 5px">
+                        <label class="form-check-label" for="is-innovation" style="margin-left: 30px">
+                            innovative Startup
+                        </label>
+                    </li>
+                    <li class="list-group-item">
+                        <input class="form-check-input" type="checkbox" {%if startup_filters.is_awarded %} checked="true" {% endif %} id="is-awarded" style="margin-left: 5px">
+                        <label class="form-check-label" for="is-awarded" style="margin-left: 30px">
+                            Already awarded
+                        </label>
+                    </li>
+                    <li class="list-group-item">
+                        <input class="form-check-input" type="checkbox" {%if startup_filters.already_raised_funds %} checked="true" {% endif %} id="already-raised-funds" style="margin-left: 5px">
+                        <label class="form-check-label" for="already-raised-funds" style="margin-left: 30px">
+                            Startup Already raised funds
+                        </label>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-5">
+                                Creation date
+                            </div>
+                            <div class="col-7">
+                                <div class="row">
+                                    <div class="form-group col-6">
+                                        <label for="creation-date-from-select">from</label>
+                                        <select class="form-control" id="creation-date-from-select">
+                                            {% for i in startup_filters_render.years_range %}
+                                            <option>{{i}}</option>
+                                            {% endfor %}
+
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="creation-date-to-select">to</label>
+                                        <select class="form-control" id="creation-date-to-select">
+                                            {% for i in startup_filters_render.years_range %}
+                                            <option>{{i}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-5">
+                                Min reported net result >
+                            </div>
+                            <div class="col-7">
+                                <input type="range" class="custom-range" min="0" max="10" step="1" id="min_net_result" value='1'>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-5">
+                                Max allowed debt
+                            </div>
+                            <div class="col-7">
+                                <input type="range" class="custom-range" min="0" max="10" step="1" id="max_net_debt" value='1'>
+                            </div>
+                        </div>
+                    </li>
+
+                </ul>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="update_startup_filters(true)">Save and refresh</button>
+                <button type="button" class="btn btn-primary" onclick="update_startup_filters(false)">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
