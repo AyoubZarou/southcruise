@@ -35,6 +35,14 @@
                         </label>
                     </li>
                     <li class="list-group-item">
+                        <label for="startup-sectors">Sectors</label>
+                        <select class="custom-select" size="3" id="startup-sectors" multiple>
+                            {% for sector, value in startup_filters.sectors.items%}
+                            <option {%if value %}selected{% endif %}>{{sector}}</option>
+                            {% endfor %}
+                        </select>
+                    </li>
+                    <li class="list-group-item">
                         <div class="row">
                             <div class="col-5">
                                 Creation date
@@ -43,9 +51,11 @@
                                 <div class="row">
                                     <div class="form-group col-6">
                                         <label for="creation-date-from-select">from</label>
+
                                         <select class="form-control" id="creation-date-from-select">
-                                            {% for i in startup_filters_render.years_range %}
-                                            <option>{{i}}</option>
+                                            <option seleced></option>
+                                            {% for key, val in startup_filters.creation_years_range.start.items %}
+                                            <option {% if val %}selected{% endif %}>{{key}}</option>
                                             {% endfor %}
 
                                         </select>
@@ -53,8 +63,9 @@
                                     <div class="form-group col-6">
                                         <label for="creation-date-to-select">to</label>
                                         <select class="form-control" id="creation-date-to-select">
-                                            {% for i in startup_filters_render.years_range %}
-                                            <option>{{i}}</option>
+                                            <option seleced></option>
+                                            {% for key, val in startup_filters.creation_years_range.end.items %}
+                                            <option {% if val %}selected{% endif %}>{{key}}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -68,7 +79,8 @@
                                 Min reported net result >
                             </div>
                             <div class="col-7">
-                                <input type="range" class="custom-range" min="0" max="10" step="1" id="min_net_result" value='1'>
+                                <input type="range" class="custom-range" min="{{startup_filters_render.net_result_range.0}}"
+                                       max="{{startup_filters_render.net_result_range.1}}" id="min_net_result" value="{{startup_filters_render.net_result_range.0}}">
                             </div>
                         </div>
                     </li>
@@ -78,7 +90,8 @@
                                 Max allowed debt
                             </div>
                             <div class="col-7">
-                                <input type="range" class="custom-range" min="0" max="10" step="1" id="max_net_debt" value='1'>
+                                <input type="range" class="custom-range" min="{{startup_filters_render.net_debt_range.0}}"
+                                       max="{{startup_filters_render.net_debt_range.1}}"id="max_net_debt" value="{{startup_filters_render.net_debt_range.0}}">
                             </div>
                         </div>
                     </li>

@@ -1,7 +1,7 @@
 <script>
     $(function(){
         $("#desired-order-sortable").sortable({stop: (event) => {update_indexes_weights()}});
-        $("#desired-startup-order-sortable").sortable({stop: (event) => {update_indexes_weights("startup")}})
+        $("#desired-startup-order-sortable").sortable({stop: (event) => {update_shown_indexes_weights("startup")}})
         feather.replace()
     })
 </script>

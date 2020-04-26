@@ -1,4 +1,5 @@
-from startup.models import Countries, CountryPerformance, PerformanceIndex, Startup, StartupPerformance
+from startup.models import (Countries, CountryPerformance, PerformanceIndex, Startup,
+                            StartupPerformance, RegisteredCompany, RegisteredCompanyPerformance)
 from collections.abc import Iterable
 from collections import defaultdict
 import pandas as pd
@@ -106,6 +107,7 @@ def get_startup_data(record):
     capital = record.capital
     founders_mean_age = record.founders_mean_age
     founders_mean_education_level = record.founders_mean_education_level
+    country_code = record.country.country_code
     try:
         customers = int(record.customers)
     except:
@@ -119,18 +121,34 @@ def get_startup_data(record):
     return v
 
 
-def aggregate_data_into_mark_(data):
+def _exp_law(x, lambda_=1):
+    return 1 - np.exp(-1 / lambda_ * x)
+
+
+def aggregate_data_into_mark(data, weights, context):
     d = {'impact': data['impact'] + 0,
          "innovation": data['innovation'] + 0,
          "investors": min(data['nb_investors'] * 0.2, 1),
          "founders": min(data['nb_founders'] * 0.2, 1),
-         "years_since_creation": (min(data['years_since_creation'] * 0.2, 1) if data['years_since_creation'] else 0),
+         "years_since_creation": (_exp_law(data['years_since_creation'], 4) if data['years_since_creation'] else 0),
          "maturity": {"Mature": 1, "Amorçage": 0, "Croissance": 0.3, "Développement": 0.6, '': 0}.get(data['maturity']),
-         "growth_rate": min(data['growth_rate'] * 1.5, 1),
-         "capital": min(1, data['capital'] / 2_000_000),
-         "net_result": min(1, data['reported_net_result'] / 1_000_000),
-         "net_debt": max(-1, data['reported_net_debt'] / 1_000_000),
+         "growth_rate": _exp_law(data['growth_rate'], 0.5) if data['growth_rate'] else 0,
+         "capital": _exp_law(data['capital'], 2_000_000) if data['capital'] else 0,
+         "net_result": _exp_law(data['result'], 1_000_000) if data['result'] else 0,
+         "net_debt": 1 - _exp_law(data['debt'], 1_000_000) if data['debt'] else 0,
+         "awards": _exp_law(data['nb_awards'], 5),
+         "number_of_employees": _exp_law(data['nb_employees'], 100) if data['nb_employees'] else 0,
+         "customers": _exp_law(data['customers'], 10000) if data['customers'] else 0,
+         "nb_partnerships": _exp_law(data['nb_partnerships'], 4) if data['nb_partnerships'] else 0,
+         "country_performance": context['countries_notes'][data['country_code']]
          }
+    mark = 0
+    for key, val in weights.items():
+        if key not in d:
+            print(key)
+        else:
+            mark += d[key] * val
+    return int(mark)
 
 
 def note_from_data_and_weights(data, weights):
@@ -138,28 +156,6 @@ def note_from_data_and_weights(data, weights):
     weights = {key: val / s for key, val in weights.items()}
     mark = sum([weights[key] * data[key] for key in weights])
     return mark
-
-
-def aggregate_data_into_mark(data, weights=None):
-    if weights is not None:
-        return note_from_data_and_weights(data, weights)
-    IMPACT_BONUS = 1
-    INNOVATON_BONUS = 1
-    PER_INVESTOR = 2
-    PER_FOUNDER = 1
-    PER_EXISTING_YEAR = 1.5
-    MATURITY = lambda x: {"Mature": 3, "Amorçage": 0, "Croissance": 1, "Développement": 2, '': 0}.get(x) if x else 0
-    GROWTH_RATE = lambda x: 2 * x / 0.1 if x else 0
-    final_mark = 0
-    final_mark += IMPACT_BONUS if data['impact'] else 0
-    final_mark += INNOVATON_BONUS if data['innovation'] else 0
-    final_mark = data['nb_investors'] * PER_INVESTOR
-    final_mark += data['nb_founders'] * PER_FOUNDER
-    final_mark += (data['years_since_creation'] * PER_EXISTING_YEAR if data['years_since_creation']
-                   else PER_EXISTING_YEAR * 0.5)
-    final_mark += MATURITY(data['maturity'])
-    final_mark += GROWTH_RATE(data['growth_rate'])
-    return final_mark
 
 
 def startup_filter_query(filter_object):
@@ -179,15 +175,23 @@ def startup_filter_query(filter_object):
             q = q & Q(**{key.split('_')[1]: True})
     if exists_and_true('is_awarded'):
         q = q & (~Q(awards=""))
-    if "years_since_foundation" in filter_object:
-        years = int(filter_object['years_since_foundation'])
-        now = datetime.datetime.now()
-        delta = datetime.timedelta(days=years * 365)
-        q = q & Q(creation_date__lte=now - delta)
+
+    if 'creation_years_range' in filter_object:
+        start = [key for key, val in filter_object['creation_years_range']['start'].items() if val]
+        start = start[0] if len(start) else ''
+        end = [key for key, val in filter_object['creation_years_range']['end'].items() if val]
+        end = end[0] if len(end) else ''
+        if start != '':
+            start = datetime.datetime(year=int(start), day=1, month=1)
+            q =q & Q(creation_date__gte=start)
+        if end != '':
+            end = datetime.datetime(year=int(end), day=1, month=1)
+            q = q & Q(creation_date__lte=end)
     return q
 
 
-def startup_details(country_list, filter_object=None, weights=None):
+def startup_details(country_list, filter_object=None, weights=None, context=None):
+    print(filter_object)
     if filter_object is None:
         filter_object = defaultdict(lambda: None)
     ret = {}
@@ -202,6 +206,16 @@ def startup_details(country_list, filter_object=None, weights=None):
             return len(ob.startupperformance_set.filter(index="func_raising")) > 0
 
         startup_objects = [*filter(ff, startup_objects)]
+    if 'sectors' in filter_object:
+        selected_sectors = [sector for sector, value in filter_object['sectors'].items() if value]
+        print("selected sectors are", selected_sectors)
+        def ff(ob):
+            sectors = [record['sector'] for record in ob.startupsector_set.all().values('sector')]
+            print(ob, sectors)
+            isin = [sector in selected_sectors for sector in sectors]
+            return sum(isin) > 0
+        startup_objects = [*filter(ff, startup_objects)]
+
     raw_fields = ['name', 'capital', 'creation_date', 'number_of_employees', 'maturity', 'founder', 'customers',
                   'operationals', 'market_potential', 'investors', 'partnerships', 'innovation', 'impact', 'awards',
                   'growth_rate', 'reported_net_result', 'reported_net_debt', 'website', 'presentation',
@@ -216,8 +230,24 @@ def startup_details(country_list, filter_object=None, weights=None):
                                 .agg({"year": list, "value": list}).to_dict(orient='index'))
         d['activity_countries'] = [k['country'] for k in startup.startupactivitycountry_set.all().values('country')]
         d['sectors'] = [k['sector'] for k in startup.startupsector_set.all().values('sector')]
-        d['note'] = aggregate_data_into_mark(get_startup_data(startup), weights=None)
+        d['note'] = aggregate_data_into_mark(get_startup_data(startup), weights=weights, context=context)
         startups.append(filter_and_format(d))
     startups = sorted(startups, key=lambda x: x['note'], reverse=True)
-    fields_to_display = ['name', 'country__country_name', 'maturity', 'sectors', 'note']
+    fields_to_display = ['name', 'country__country_name', 'maturity', 'sectors', 'capital', 'note']
     return startups, create_frappe_dataset(startups, fields_to_display)
+
+
+def registered_company_details(country_list, filter_object=None, weights=None, context=None):
+    query = Q()
+    for country in country_list:
+        query = query | Q(country__country_code=country)
+    companies_list = list(RegisteredCompany.objects.filter(query))
+    companies = []
+    fields_to_select = ['security', 'gics_sector', 'country__country_name', 'country__country_code', 'id']
+    for company in companies_list:
+        selected_fields = select_fields(company, fields_to_select)
+        performance_set = RegisteredCompanyPerformance.objects.filter(company_id=company.id).values()
+        performance_set = {val['index']: round(val['value'], 2) for val in performance_set}
+        companies.append({**selected_fields, **performance_set})
+    fields_to_display = ['security', 'gics_sector', 'country__country_name', 'Company Market Cap (USD)']
+    return companies, create_frappe_dataset(companies, fields_to_display)

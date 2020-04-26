@@ -8,7 +8,6 @@ def totals_from_weights(weights):
     notation = CountryNotation.objects.values('country__country_code', 'index_id', 'note', 'country__country_name')
     notation = pd.DataFrame(notation)
     notation = notation.set_index(['country__country_code', 'country__country_name', 'index_id']).note.unstack(-1)
-    print(notation,weights)
     notation = (notation * pd.Series(weights)).sum(axis=1)
     notation = (notation - notation.min()) / (notation.max() - notation.min())
     to_return = {}

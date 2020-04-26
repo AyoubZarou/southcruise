@@ -1,11 +1,17 @@
-from startup.models import PerformanceIndex
+from startup.models import PerformanceIndex, StartupSector
 from . import utils
 from .config import TAKE_INTO_ACCOUNT
+import pandas as pd
 
 
 def startup_filter_defaults():
-    return {"is_impact": False, "is_innovation": True, "is_awarded": False,
-            "already_raised_funds": False, "years_since_foundation": 0}
+    filters = {"is_impact": False, "is_innovation": False, "is_awarded": False,
+            "already_raised_funds": False}
+    unique_sectors = pd.DataFrame(StartupSector.objects.all().values('sector')).sector.unique()
+    filters['sectors'] = {value: True for value in unique_sectors}
+    filters['creation_years_range'] = {"start": {str(year): False for year in range(2010, 2021)},
+                        "end": {str(year): False for year in range(2010, 2021)}}
+    return filters
 
 
 def charts_context_defaults():
@@ -36,4 +42,4 @@ DEFAULT_STARTUP_FILTERS = {
 
 
 def startup_indexes_default():
-    return DEFAULT_STARTUP_FILTERS
+    return {id_: 10 for id_, val in DEFAULT_STARTUP_FILTERS.items() if val['chosen']}

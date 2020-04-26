@@ -22,7 +22,7 @@
                                             <form>
                                                 <div class="form-group">
                                                     <label for="startup-slider-weights-{{el}}">{{val.name}}</label>
-                                                    <input type="range" class="form-control-range" id="startup-slider-weights-{{el}}" min="0" max="100" value="{{val.value}}" refers-to="{{el}}" onchange="update_indexes_weights(this, 'startup')">
+                                                    <input type="range" class="form-control-range" id="startup-slider-weights-{{el}}" min="0" max="100" value="{{val.value}}" refers-to="{{el}}" onchange="update_shown_indexes_weights(this, 'startup')">
                                                 </div>
                                             </form>
                                         </div>
@@ -61,8 +61,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="update_startup_indexes_order(true)">Save and refresh</button>
-                <button type="button" class="btn btn-primary" onclick="update_startup_indexes_order(false)">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="update_indexes_order(true, 'startup')">Save and refresh</button>
+                <button type="button" class="btn btn-primary" onclick="update_indexes_order(false, 'startup')">Save changes</button>
             </div>
         </div>
     </div>

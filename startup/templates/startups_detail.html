@@ -1,4 +1,6 @@
-<!--Template for displaying startup details-->
+<!--Template for displaying startup details
+TODO: refactor the template to use inclusion tags in order to get rid of redunduncy
+-->
 <div class="row" style="margin-bottom: 100px">
     {% include "startups_table.html" %}
     <div class="col-5 overflow-auto" id="startup-detailed-detail" style="display:none; height: 500px">
@@ -22,11 +24,24 @@
                         <li class="list-group-item">
                             Reported net result: <b>${{row.reported_net_result}}</b>
                         </li>
-                        {% endif %} {% if row.reported_net_debt %}
+                        {% endif %}
+                        {% if row.capital %}
+                        <li class="list-group-item">
+                            Capital: <b>${{row.capital}}</b>
+                        </li>
+                        {% endif %}
+                        {% if row.reported_net_debt %}
                         <li class="list-group-item">
                             Reported net debt: <b>${{row.reported_net_debt}}</b>
                         </li>
-                        {% endif %} {% if row.sectors %}
+                        {% endif %}
+
+                        {% if row.number_of_employees %}
+                        <li class="list-group-item">
+                            Number of employees: <b>{{ row.number_of_employees }}</b>
+                        {% endif %}
+
+                        {% if row.sectors %}
                         <li class="list-group-item">
                             Sectors {%for val in row.sectors %}
                             <span class="badge badge-primary">{{val}}</span> {% endfor %} </li>

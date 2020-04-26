@@ -33,14 +33,24 @@ def update_indexes_order_session(data, request):
     print("data is", data, type(data))
     # weights = _process_weights(data['weights'])
 
-    print("ORDER IS", "*" * 10, '\n', data, type(data))
     session_id = '_SessionBase__session_key'
     # opinion = OrderOpinion(session_key=getattr(request.session, session_id), order=json.dumps(data))
     # opinion.save()
-    request.session['indexes_order'] = dict(zip(data['id'], data['weights']))
+    request.session['indexes_order'] = dict(zip(data['ids'], data['values']))
     print(request.session["indexes_order"], 'after')
+
+
+def update_startup_indexes_order_session(data, request):
+    data = json.loads(data)
+    request.session['startup_indexes_order'] = dict(zip(data['ids'], data['values']))
 
 
 def update_startup_filters_session(data, request):
     data = json.loads(data)
     request.session['startup_filters'] = data
+
+
+def update_target_view(data, request):
+    data = json.loads(data)
+    print('data is', data)
+    request.session['target_view'] = data['target_view']
