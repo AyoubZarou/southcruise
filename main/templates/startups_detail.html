@@ -1,0 +1,90 @@
+<!--Template for displaying startup details
+TODO: refactor the template to use inclusion tags in order to get rid of redunduncy
+-->
+<div class="row" style="margin-bottom: 100px">
+    {% include "startups_table.html" %}
+    <div class="col-5 overflow-auto" id="startup-detailed-detail" style="display:none; height: 500px">
+        {%for row in startups_full_view %}
+        <div class="card startup-detail-card" id="startup-detailed-{{row.id}}" style="display:none">
+            <div class="card" style="width: 100%; padding-bottom: 5px">
+                <h5 class="card-header">{{row.name}} <span class="badge badge-primary float-right">{{row.country__country_name}}
+                    </span></h5>
+                <div class="card-body">
+
+                    <p class="card-text">{{row.presentation}}</p>
+                    <ul class="list-group list-group-flush">
+                        {% if row.creation_date %}
+                        <li class="list-group-item">
+                            <span data-feather="calendar"></span> Created on <b>{{row.creation_date}} </b></li>
+                        {% endif %} {% if row.activity_countries %}
+                        <li class="list-group-item">
+                            Operates in {%for val in row.activity_countries %}
+                            <span class="badge badge-primary">{{val}}</span> {% endfor %} </li>
+                        {% endif %} {% if row.reported_net_result %}
+                        <li class="list-group-item">
+                            Reported net result: <b>${{row.reported_net_result}}</b>
+                        </li>
+                        {% endif %}
+                        {% if row.capital %}
+                        <li class="list-group-item">
+                            Capital: <b>${{row.capital}}</b>
+                        </li>
+                        {% endif %}
+                        {% if row.reported_net_debt %}
+                        <li class="list-group-item">
+                            Reported net debt: <b>${{row.reported_net_debt}}</b>
+                        </li>
+                        {% endif %}
+
+                        {% if row.number_of_employees %}
+                        <li class="list-group-item">
+                            Number of employees: <b>{{ row.number_of_employees }}</b>
+                        {% endif %}
+
+                        {% if row.sectors %}
+                        <li class="list-group-item">
+                            Sectors {%for val in row.sectors %}
+                            <span class="badge badge-primary">{{val}}</span> {% endfor %} </li>
+                        {% endif %} {% if row.partnerships %}
+                        <li class="list-group-item"> Partnerships: <b>{{row.partnerships}}</b></li>
+                        {% endif %} {% if row.growth_rate %}
+                        <li class="list-group-item"><span data-feather="trending-up"></span> Growth rate: <b>{{row.growth_rate}}</b></li>
+                        {% endif %} {% if row.maturity %}
+                        <li class="list-group-item">Maturity: <b>{{row.maturity}}</b></li>
+                        {% endif %} {% if row.customers %}
+                        <li class="list-group-item"><span data-feather="user"></span> Customers: <b>{{row.customers}}</b></li>
+                        {% endif %} {% if row.impact %}
+                        <li class="list-group-item">Impact <span data-feather="check"></span> </li>
+                        {% endif %} {% if row.innovation %}
+                        <li class="list-group-item">Innovation <span data-feather="check"></span> </li>
+                        {% endif %} {% if row.operationals %}
+                        <li class="list-group-item">Figures: <b>{{row.operationals}} </b></li>
+                        {% endif %} {% if row.founder %}
+                        <li class="list-group-item">Founded by: <b>{{row.founder}} </b></li>
+                        {% endif %} {% if row.market_potential %}
+                        <li class="list-group-item">Market potential: <b>{{row.market_potential}} </b></li>
+                        {% endif %} {% if row.awards %}
+                        <li class="list-group-item"><span data-feather="award"></span> Awards : <b>{{row.awards}} </b></li>
+                        {% endif %} {% if row.performance %}
+                        <li class="list-group-item">
+                            {% for key, val in row.performance.items %}
+                            <div class="card">
+                                <h5 class="card-header">{% if key ==  "fund_raising" %} Fund raising{% else %}{{key}} {% endif %}</h5>
+                                <div class="card-body"></div>
+                                <canvas id="performance-index-{{key}}-{{row.id}}"></canvas>
+                            </div>
+                            {% endfor %}
+                        </li>
+                        {% endif %} {% if row.investors %}
+                        <li class="list-group-item"> Investors: <b>{{row.investors}}</b></li>
+                        {% endif %}
+                    </ul>
+                    {% if row.website %}
+                    <a href="{{row.website}}" class="card-link" target="_blank">Visit website</a> {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>

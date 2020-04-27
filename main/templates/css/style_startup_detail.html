@@ -1,0 +1,7 @@
+<style>
+    {% for key, value in codes.items%}
+    .badge-{{key}}{
+        background-color: {{value.color}};
+    }
+    {% endfor %}
+</style>

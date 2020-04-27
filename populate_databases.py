@@ -10,11 +10,12 @@ import itertools
 from collections import defaultdict
 
 django.setup()
-from startup.models import (Countries, CountryPerformance, Startup, PerformanceIndex, StartupPerformance, \
-                            StartupActivityCountry, StartupSector)
+from main.models import (Countries, CountryPerformance, Startup, PerformanceIndex, StartupPerformance, \
+                         StartupActivityCountry, StartupSector)
 
-TO_REFRESH = [Startup, StartupPerformance,
-              StartupActivityCountry, StartupSector]
+TO_REFRESH = (Countries, CountryPerformance, Startup, PerformanceIndex, StartupPerformance,
+              StartupActivityCountry, StartupSector)
+
 for model in TO_REFRESH:
     model.objects.all().delete()
 
@@ -33,7 +34,7 @@ countries_code = {'AGO': 'Angola', 'BDI': 'Burundi', 'BEN': 'Benin', 'BFA': 'Bur
                   'SOM': 'Somalia', 'SSD': 'South Sudan', 'TCD': 'Chad', 'TGO': 'Togo', 'TUN': 'Tunisia',
                   'TZA': 'Tanzania',
                   'UGA': 'Uganda', 'ZAF': 'South Africa', 'ZMB': 'Zambia', 'ZWE': 'Zimbabwe', 'SWZ': 'Swaziland',
-                  'SSD': 'South Sudan'}
+                  'SSD': 'South Sudan', 'MAU': 'Mauritius'}
 
 # Reporocessing Startup Data
 # mapping used to map countries on the dataset to their unique country code
@@ -210,6 +211,24 @@ if CountryPerformance in TO_REFRESH:
                 cp = CountryPerformance(country=country, year=year, value=val,
                                         performance_index=performance_index)
                 cp.save()
+    deals_path = "C:/Users/ZAROU/Desktop/southcruise_data/Southcruise_deals_database.xlsx"
+    deals = pd.read_excel(deals_path)
+    deals.columns = ['country_name', 'country_code', 'nb_deals', 'pe', 'vc']
+    deals.dropna(subset=['country_code'], inplace=True)
+    venture_capital_index = PerformanceIndex(name="VENTURE CAPITAL DEALS", category="ECONOMIC")
+    venture_capital_index.save()
+    private_equity_index = PerformanceIndex(name="PRIVATE EQUITY DEALS", category="ECONOMIC")
+    private_equity_index.save()
+    for i, val in deals.iterrows():
+        country = Countries.objects.get(country_code=val.country_code)
+        pep = CountryPerformance(performance_index=private_equity_index, country=country,
+                                 year=2020, value=val.pe)
+        pep.save()
+        vcp = CountryPerformance(performance_index=venture_capital_index, country=country,
+                                 year=2020, value=val.vc)
+        vcp.save()
+
+
 
 if Startup in TO_REFRESH:
     cols_to_exclude = ['activity_countries', "sector_values", "fund_raising",

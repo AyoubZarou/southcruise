@@ -5,7 +5,7 @@ import django
 import pandas as pd
 
 django.setup()
-from startup.models import (Countries, CountryPerformance, Startup, PerformanceIndex, StartupPerformance,
+from main.models import (Countries, CountryPerformance, Startup, PerformanceIndex, StartupPerformance,
                             StartupActivityCountry, StartupSector, RegisteredCompany, RegisteredCompanyPerformance)
 
 countries_mapping = {'AGO': 'Angola', 'BDI': 'Burundi', 'BEN': 'Benin', 'BFA': 'Burkina Faso', 'BWA': 'Botswana',

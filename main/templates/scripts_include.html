@@ -1,0 +1,27 @@
+<!--Used to include all the used scripts-->
+{% load static %}
+<script src="{%static 'jquery.js' %}" ></script>
+<script src="{% static 'tooltipster/dist/js/tooltipster.bundle.min.js' %}"></script>
+<script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{%static 'cdnjs.cloudflare.com/ajax/libs/feather-icons/4.9.0/feather.min.js'  %}"></script>
+<script src="{% static 'jquery-ui.js' %}"></script>
+<script src="{% static 'cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js' %}"></script>
+<script src="{% static 'sortable.min.js' %}"></script>
+<script src="{% static 'clusterize.min.js' %}"></script>
+<script src="{% static 'frappe-datatable/frappe-datatable.min.js' %}"></script>
+
+
+{% include 'js/onload.js' %}
+<script>
+    {% include 'js/session_update.js' %}
+</script>
+
+<script>
+    {% include 'js/map_form.js'%}
+</script>
+<script>
+    {% include 'js/filter_scripts.js' %}
+</script>
+<script>
+    {% include 'js/startup_charts.js' %}
+</script>
