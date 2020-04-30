@@ -1,5 +1,5 @@
 <!--Template for displaying startup details
-TODO: refactor the template to use inclusion tags in order to get rid of redunduncy
+TODO: refactor the template to use inclusion tags in order to get rid of redundancy
 -->
 <div class="row" style="margin-bottom: 100px">
     {% include "startups_table.html" %}
@@ -10,7 +10,6 @@ TODO: refactor the template to use inclusion tags in order to get rid of redundu
                 <h5 class="card-header">{{row.name}} <span class="badge badge-primary float-right">{{row.country__country_name}}
                     </span></h5>
                 <div class="card-body">
-
                     <p class="card-text">{{row.presentation}}</p>
                     <ul class="list-group list-group-flush">
                         {% if row.creation_date %}
@@ -65,7 +64,17 @@ TODO: refactor the template to use inclusion tags in order to get rid of redundu
                         <li class="list-group-item">Market potential: <b>{{row.market_potential}} </b></li>
                         {% endif %} {% if row.awards %}
                         <li class="list-group-item"><span data-feather="award"></span> Awards : <b>{{row.awards}} </b></li>
-                        {% endif %} {% if row.performance %}
+                        {% endif %}
+                        {% if row.investment_need %}
+                        <li class="list-group-item">Investment need : <b>{{row.investment_need}} </b></li>
+                        {% endif %}
+                        {% if row.founders_mean_age %}
+                        <li class="list-group-item">Founders mean age : <b>{{row.founders_mean_age}} </b> years</li>
+                        {% endif %}
+                        {% if row.founders_mean_education_level %}
+                        <li class="list-group-item">Founders mean education level : <b>{{row.founders_mean_education_level}} </b></li>
+                        {% endif %}
+                        {% if row.performance %}
                         <li class="list-group-item">
                             {% for key, val in row.performance.items %}
                             <div class="card">

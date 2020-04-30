@@ -23,6 +23,8 @@ def update_session(request):
         ssu.update_startup_indexes_order_session(data, request)
     elif target == "target-view":
         ssu.update_target_view(data, request)
+    elif target == "company-indexes-order":
+        ssu.update_company_indexes_order_session(data, request)
     return HttpResponse('ok')
 
 
@@ -61,14 +63,23 @@ def _render_startup_view(request):
 def _render_registered_company_view(request):
     context = _load_country_session(request)
     context['target_view'] = "registered_company"
+    if 'company_indexes_order' in request.session:
+        company_indexes_order = request.session['company_indexes_order']
+    else:
+        company_indexes_order = defaults.registered_company_indexes_defaults()
+        request.session['company_indexes_order'] = company_indexes_order
+    context['company_indexes_order'] = company_indexes_order
     try:
         country = request.GET['country']
     except:
-        return render(request, 'index.html', context)
+        return render(request, 'registred_company/index.html', context)
     else:
         country_list = request.GET['country'].split(',')
-    companies, companies_dataset = registered_company_details(country_list)
-    context.update({"companies": companies, "companies_dataset": companies_dataset})
+    companies, companies_dataset = registered_company_details(country_list, weights=company_indexes_order)
+
+    context.update({"companies": companies,
+                    "companies_dataset": companies_dataset
+                    })
     return render(request, 'registred_company/index.html', context)
 
 

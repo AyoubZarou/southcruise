@@ -13,8 +13,7 @@ django.setup()
 from main.models import (Countries, CountryPerformance, Startup, PerformanceIndex, StartupPerformance, \
                          StartupActivityCountry, StartupSector)
 
-TO_REFRESH = (Countries, CountryPerformance, Startup, PerformanceIndex, StartupPerformance,
-              StartupActivityCountry, StartupSector)
+TO_REFRESH = (Startup,)
 
 for model in TO_REFRESH:
     model.objects.all().delete()
@@ -46,7 +45,7 @@ startup_data_country_mapping = {
     "Mauritius": 'MAU',
 }
 # path to sartup data
-startup_data_path = "C:\\Users\\ZAROU\\Desktop\\southcruise_data\\South_cruise_startup_base (version 1).xlsx"
+startup_data_path = "C:\\Users\\ZAROU\\Desktop\\southcruise_data\\South_cruise_startup_base (version 2).xlsx"
 # used to rename the fields
 field_names = {
     "Company": "name",
@@ -77,6 +76,7 @@ field_names = {
     'Dette nette reportée': 'reported_net_debt',
     "Niveau d'éducation des fondateurs": 'founders_mean_education_level',
     "Contact": 'contact',
+    "Besoin d'investissement": 'investment_need',
 }
 # used to map sector to a more restrective set
 sector_mapping = {

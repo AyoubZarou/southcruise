@@ -11,17 +11,22 @@ function update_year_since(that){
 
 // remove an indicator from order for performance indexes order
 function remove_from_order(that, side){
+    console.log(that, side)
     if (side == "startup"){
          // for startup indicators (number of employees, ...)
           let refers_to  = $(that).attr('refers-to');
         $('#desired-startup-order-' + refers_to).css('display', 'none')
     $('#excluded-startup-order-' + refers_to).css('display', 'block')
-    } else {
+    } else if (side == 'company'){
+         let refers_to  = $(that).attr('refers-to');
+        $('#desired-company-order-' + refers_to).css('display', 'none')
+           $('#excluded-company-order-' + refers_to).css('display', 'block')
+     }else {
          // for country indicators (GDP, GDP per capita ....)
     let refers_to  = $(that).attr('refers-to');
     $('#desired-order-' + refers_to).css('display', 'none')
-    $('#excluded-order-' + refers_to).css('display', 'block')
-    update_indexes_weights()}
+    $('#excluded-order-' + refers_to).css('display', 'block')}
+    update_shown_indexes_weights(that, side);
 }
 // add an indcator to the order
 function add_to_order(that, side){
@@ -29,13 +34,17 @@ function add_to_order(that, side){
         let refers_to  = $(that).attr('refers-to');
         $('#desired-startup-order-' + refers_to).css('display', 'block')
     $('#excluded-startup-order-' + refers_to).css('display', 'none')
-    } else {
+    }else if (side == 'company'){
+         let refers_to  = $(that).attr('refers-to');
+        $('#desired-company-order-' + refers_to).css('display', 'block')
+    $('#excluded-company-order-' + refers_to).css('display', 'none')
+     } else {
     let refers_to  = $(that).attr('refers-to');
     $('#desired-order-' + refers_to).css('display', 'block')
     $('#excluded-order-' + refers_to).css('display', 'none')
-    update_indexes_weights();
-
-}}
+}
+update_shown_indexes_weights(that, side);
+}
 
 // update shown indicators weights depending on the order and how far the cursor is pushed
 // the convention is that, if for example we have the first cursor at 50% the second at 40% and the third at 100 % and
@@ -45,6 +54,9 @@ function update_shown_indexes_weights(that, side){
      let prefix = ""
     if (side == "startup"){
         prefix = "startup-"
+    }
+    else if (side == "company"){
+        prefix = "company-"
     }
     let weights = get_indexes_weights(side)
     let ids = weights['ids']

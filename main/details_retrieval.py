@@ -229,8 +229,8 @@ def startup_details(country_list: List[str], filter_object: dict = None,
     raw_fields = ['name', 'capital', 'creation_date', 'number_of_employees', 'maturity', 'founder', 'customers',
                   'operationals', 'market_potential', 'investors', 'partnerships', 'innovation', 'impact', 'awards',
                   'growth_rate', 'reported_net_result', 'reported_net_debt', 'website', 'presentation',
-                  'country__country_name',
-                  'country__country_code', 'id']
+                  'country__country_name', 'country__country_code', 'id', 'investment_need', 'founders_mean_age',
+                  'founders_mean_education_level']
     startups = []
     for startup in startup_objects:
         d = select_fields(startup, raw_fields)
@@ -247,9 +247,24 @@ def startup_details(country_list: List[str], filter_object: dict = None,
     return startups, create_frappe_dataset(startups, fields_to_display)
 
 
+def _process_weights(d):
+    # used to calculate real weights from ordered weights (see the guide)
+    w = list(d.values())
+    new_weights = []
+    remain = 100
+    for _w in w[:-1]:
+        new_weights.append(int(remain * _w / 100))
+        remain -= remain * _w / 100
+    new_weights.append(int(remain))
+    return dict(zip(d.keys(), new_weights))
+
+
 def registered_company_details(country_list: List[str], filter_object: dict = None,
                                weights: dict = None, context: dict = None):
     query = Q()
+    weights = _process_weights({w['name']: w['value'] for w in weights.values()})
+    details = get_registered_company_table()
+    details =(details - details.min(axis=0)) / (details.max(axis=0) - details.min(axis=0))
     for country in country_list:
         query = query | Q(country__country_code=country)
     companies_list = list(RegisteredCompany.objects.filter(query))
@@ -257,10 +272,12 @@ def registered_company_details(country_list: List[str], filter_object: dict = No
     fields_to_select = ['security', 'gics_sector', 'country__country_name', 'country__country_code', 'id']
     for company in companies_list:
         selected_fields = select_fields(company, fields_to_select)
+        note = round((pd.Series(weights) * details.loc[selected_fields['id']].iloc[0, :]).sum())
         performance_set = RegisteredCompanyPerformance.objects.filter(company_id=company.id).values()
         performance_set = {val['index']: round(val['value'], 2) for val in performance_set}
-        companies.append({**selected_fields, **performance_set})
-    fields_to_display = ['security', 'gics_sector', 'country__country_name', 'Company Market Cap (USD)']
+        companies.append({**selected_fields, **performance_set, 'note': note})
+    companies = sorted(companies, key=lambda x: x['note'], reverse=True)
+    fields_to_display = ['security', 'gics_sector', 'country__country_name', 'Company Market Cap (USD)', 'note']
     return companies, create_frappe_dataset(companies, fields_to_display)
 
 
@@ -270,8 +287,8 @@ def get_registered_company_table() -> pd.DataFrame:
     """
     details = (pd.DataFrame(RegisteredCompanyPerformance.objects.all()
                             .values('index', 'value', 'company__gics_sector', 'company__id',
-                                    'company__trbc_sector', 'company__security')))
-    details.columns = details.columns.str.lstrip('company__')
-    print(details.columns)
+                                    'company__trbc_sector', 'company__security', 'company__country__country_code')))
+    details.columns = [col.split('__')[-1] for col in details.columns]
     return pd.pivot_table(details, values=['value'], index=['id', 'security', 'gics_sector', 'trbc_sector'],
                           columns=['index'])['value']
+

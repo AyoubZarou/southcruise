@@ -41,6 +41,18 @@ var update_indexes_order = function(refresh, side){
 
 }
 
+var update_company_indexes_order = function(refresh){
+    let w = get_indexes_weights("company", true);
+    let length = w['ids'].length;
+    let hidden_length = w['hidden_ids'].length;
+    let ids = w['ids'].concat(w['hidden_ids'])
+    let names = w['names'].concat(w['hidden_names'])
+    let values = w['values'].concat(w['hidden_values'])
+    let chosen = Array.apply(null, Array(length + hidden_length)).map(function(i, j){
+                                                        if (j<length){return true}; return false})
+    let data = {ids, names, values, chosen}
+    send_update_request(data, 'company-indexes-order', refresh)
+}
 
 var update_startup_filters = function(refresh){
     var data = startup_filter_values()

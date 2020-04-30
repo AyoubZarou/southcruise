@@ -46,7 +46,6 @@ def update_indexes_order_session(data, request):
     except:
         pass
     request.session['indexes_order'] = dict(zip(data['ids'], data['values']))
-    print(request.session["indexes_order"], 'after')
 
 
 def update_startup_indexes_order_session(data, request):
@@ -57,6 +56,13 @@ def update_startup_indexes_order_session(data, request):
 def update_startup_filters_session(data, request):
     data = json.loads(data)
     request.session['startup_filters'] = data
+
+
+def update_company_indexes_order_session(data, request):
+    data = json.loads(data)
+    d = {id_: {"name": name, "chosen": chosen, 'value': value}
+         for id_, name, chosen, value in zip(data['ids'], data['names'], data['chosen'], data['values'])}
+    request.session['company_indexes_order'] = d
 
 
 def update_target_view(data, request):

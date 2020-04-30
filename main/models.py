@@ -59,6 +59,7 @@ class Startup(models.Model):
     reported_net_debt = models.FloatField(default=None, null=True, blank=True)
     website = models.URLField(null=True, default="")
     presentation = models.TextField(blank=True, null=True)
+    investment_need = models.FloatField(default=None, null=True, blank=True)
 
     def __str__(self):
         return self.name

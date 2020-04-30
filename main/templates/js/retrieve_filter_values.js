@@ -45,23 +45,51 @@ function set_startup_filter_values(values) {
     $('#foundation-date')[0].value = values["years_since_foundation"];
 }
 
-function get_indexes_weights(side) {
+function get_indexes_weights(side, all_values) {
+//    all_values ,bool, include the non selected filters too
     let prefix = ""
     if (side == "startup") {
         prefix = "startup-"
     }
+    else if (side == 'company'){
+        prefix = 'company-'
+    }
     var els = $(`#desired-${prefix}order-sortable>li`)
     let l = []
     var ids = []
+    var names = []
+    var hidden_l = []
+    var hidden_ids = []
+    var hidden_names = []
     for (i = 0; i < els.length; i++) {
+        let name = $(els[i]).attr('refered-name')
+         let refered_to = $(els[i]).attr('refers-to');
+          let slider_value = $(`#${prefix}slider-weights-` + refered_to)[0].value
+          let id ;
+            if (side != "company"){
+            id = parseInt(refered_to)}
+            else {
+            id = refered_to
+            }
+            let value = parseInt(slider_value)
         if ($(els[i]).css('display') == "block") {
-            let refered_to = $(els[i]).attr('refers-to');
-            let slider_value = $(`#${prefix}slider-weights-` + refered_to)[0].value
-            ids.push(parseInt(refered_to))
-            l.push(parseInt(slider_value))
-        }
+            names.push(name)
+            ids.push(id)
+            l.push(value)
+        } else if (all_values){
+            hidden_names.push(name)
+            hidden_ids.push(id)
+            hidden_l.push(value)
+
+       }
     }
-    return { "ids": ids, "values": l }
+    ret = { "ids": ids, "values": l, 'names': names}
+    if (all_values){
+        ret['hidden_ids'] = hidden_ids;
+        ret['hidden_values'] = hidden_l;
+        ret['hidden_names'] = hidden_names;
+    }
+    return ret
 }
 
 function get_selected_charts_values() {

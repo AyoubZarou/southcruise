@@ -16,7 +16,8 @@
                             </div>
                             <ul id="desired-order-sortable" class="list-group list-group-flush">
                                 {% for el, val in indexes_order.items %}
-                                <li class="list-group-item" id="desired-order-{{el}}" refers-to="{{el}}" style="{%if not val.chosen %}display:none{% endif %}">
+                                <li class="list-group-item" id="desired-order-{{el}}" refered-name = "{{val.name}}"
+                                    refers-to="{{el}}" style="{%if not val.chosen %}display:none{% endif %}">
                                     <div class="row h-auto">
                                         <div class="col-8">
                                             <form>
@@ -45,7 +46,8 @@
                             </div>
                             <ul id="excluded-order-sortable" class="list-group list-group-flush">
                                 {% for el, val in indexes_order.items %}
-                                <li class="list-group-item" id="excluded-order-{{el}}" refers-to="{{el}}" style="{%if val.chosen %}display:none{% endif %}">
+                                <li class="list-group-item" id="excluded-order-{{el}}"  refered-name = "{{val.name}}"
+                                    refers-to="{{el}}" style="{%if val.chosen %}display:none{% endif %}">
                                     <div class="row">
                                         <div class="col-8">
                                             {{val.name}}

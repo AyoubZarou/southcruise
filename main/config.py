@@ -45,7 +45,7 @@ DEFAULT_STARTUP_FILTERS = {
     9: {"name": "investors", 'chosen': True, "value": 20, 'alt': 'investors'},
     10: {"name": "years since creation", 'chosen': False, "value": 20, 'alt': 'years_since_creation'},
     11: {"name": 'Country performance', 'chosen': True, "value": 100, 'alt': 'country_performance'},
-    12: {"name": "Nomber of years with fund raise", 'chosen': False, "value":100, "alt": "nb_fund_raising_years"},
+    12: {"name": "Number of years with fund raise", 'chosen': False, "value":100, "alt": "nb_fund_raising_years"},
     13: {"name": 'Fund raising value', 'chosen': True, 'value': 100, "alt": 'fund_raising_value'},
     14: {"name": 'Founders mean age (older is better)', 'value': 0, 'chosen': False, "alt": "founders_mean_age_ob"},
     15: {"name": 'Founders mean age (younger is better)', 'value': 0, 'chosen': False, "alt": "founders_mean_age_yb"},

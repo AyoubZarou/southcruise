@@ -1,4 +1,4 @@
-from .models import PerformanceIndex, StartupSector, OrderOpinion
+from .models import PerformanceIndex, StartupSector, OrderOpinion, RegisteredCompany, RegisteredCompanyPerformance
 
 from .config import DEFAULT_STARTUP_FILTERS
 from . import utils
@@ -6,6 +6,7 @@ from .config import TAKE_INTO_ACCOUNT
 import pandas as pd
 import json
 import numpy as np
+import re
 
 
 def startup_filter_defaults() -> dict:
@@ -64,3 +65,10 @@ def startup_indexes_weights_default():
 
 def registered_company_filter_defaults():
     pass
+
+
+def registered_company_indexes_defaults():
+    indicators_names = [indicator['index'] for indicator
+                        in RegisteredCompanyPerformance.objects.all().values('index')]
+    return {"_".join(re.split('\(|\)|\s|/|,', name)): {"chosen": True, "value": 10, "name": name} for name in
+            indicators_names}
