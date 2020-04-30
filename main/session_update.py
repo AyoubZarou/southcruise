@@ -34,8 +34,17 @@ def update_indexes_order_session(data, request):
     # weights = _process_weights(data['weights'])
 
     session_id = '_SessionBase__session_key'
-    # opinion = OrderOpinion(session_key=getattr(request.session, session_id), order=json.dumps(data))
-    # opinion.save()
+    try:
+        session_key = request.session.session_key
+        print("session key", request.session.session_key)
+        exists = OrderOpinion.objects.filter(session_key=session_key)
+        if len(exists):
+            exists.update(order=json.dumps(data))
+        else:
+            opinion = OrderOpinion(session_key=session_key, order=json.dumps(data))
+            opinion.save()
+    except:
+        pass
     request.session['indexes_order'] = dict(zip(data['ids'], data['values']))
     print(request.session["indexes_order"], 'after')
 

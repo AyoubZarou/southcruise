@@ -26,12 +26,8 @@ def update_session(request):
     return HttpResponse('ok')
 
 
-def country_performance_colors(order):
-    notes = notation.totals_from_weights(order)
-    return notes
-
-
 def get_startup_filter_rendering_context():
+    # get global data about startups used to set up the filters template
     startups = pd.DataFrame(Startup.objects.all().values())
     years_range = range(startups.creation_date.min().year, startups.creation_date.max().year + 1)
     net_result_range = [startups.reported_net_result.min(), startups.reported_net_result.max()]
@@ -84,7 +80,8 @@ def index(request):
         return _render_registered_company_view(request)
 
 
-def get_context_query(context):
+def get_country_context_query(context):
+    """ get a query used to filter out the non-needed coutry performance data"""
     ret = Q()
     for category, category_values in context.items():
         for index_el in category_values:
@@ -95,11 +92,17 @@ def get_context_query(context):
     return ret
 
 
-def get_country_performance(country_list, context={}):
+def get_country_performance(country_list: list, context: dict = {}):
+    """
+    :param country_list: List of country codes used to retrieve the data for these countries
+    :param context: context used to filter the data (if an indicator is not to be sent, or to be sent on a
+    limited range)
+    :return: a dictionary containing the data
+    """
     query = Q()
     for country in country_list:
         query = query | Q(country__country_code=country)
-    context_query = get_context_query(context)
+    context_query = get_country_context_query(context)
     performance_objects = CountryPerformance.objects.filter(query & context_query)
     v = performance_objects.values("year", 'value', 'country__country_name',
                                    "performance_index__name", "performance_index__id",
@@ -113,15 +116,18 @@ def get_country_performance(country_list, context={}):
     s = df.set_index(['performance_index', "performance_index_id", 'country_code', 'country_name', 'year']).unstack(
         ['country_code', 'country_name'])['value'].round(2).fillna('null')
     grouped = s.groupby(level=[0, 1])
-    reagg = grouped.apply(lambda series: series.to_dict('list')).rename('value').to_frame()
-    reagg = reagg.join(grouped.apply(lambda series: series.index.get_level_values(-1).to_list()).rename('year'))
-    out = reagg.reset_index().to_dict('records')
+    data = grouped.apply(lambda series: series.to_dict('list')).rename('value').to_frame()
+    # join with the year data (the get_level_values(-1) allows to get the year data as a list)
+    data = data.join(grouped.apply(lambda series: series.index.get_level_values(-1).to_list()).rename('year'))
+    out = data.reset_index().to_dict('records')
     for x in out:
+        # include the country name and country code on the value data (as the first two level data of the index)
         x['value'] = [[*key, value] for key, value in x['value'].items()]
     return out
 
 
 def _process_weights(d):
+    # used to calculate real weights from ordered weights (see the guide)
     w = list(d.values())
     new_weights = []
     remain = 100
@@ -130,14 +136,6 @@ def _process_weights(d):
         remain -= remain * _w / 100
     new_weights.append(int(remain))
     return dict(zip(map(int, d.keys()), new_weights))
-
-
-def get_country_codes():
-    country_dict = {}
-    countries = Countries.objects
-    for el in countries.all():
-        country_dict[el.country_code] = {"name": el.country_name}
-    return country_dict
 
 
 def _load_country_session(request):
@@ -150,7 +148,7 @@ def _load_country_session(request):
     else:
         indexes_order = defaults.country_indexes_weights_defaults()
     indexes_order = _process_weights(indexes_order)
-    colors = country_performance_colors(indexes_order)
+    colors = notation.country_notation(indexes_order)
     for el, val in colors.items():
         colors[el]['color'] = utils.color_from_rating(val['note'])
     context = {"codes": colors,
@@ -175,9 +173,9 @@ def _load_session(request):
         startup_filters = defaults.startup_filter_defaults()
     if 'startup_indexes_order' in dict(request.session):
         startup_indexes_order = request.session['startup_indexes_order']
+        startup_indexes_order = _process_weights(startup_indexes_order)
     else:
         startup_indexes_order = defaults.startup_indexes_weights_default()
-    startup_indexes_order = _process_weights(startup_indexes_order)
 
     return {"startup_filters": startup_filters,
             "startup_indexes_order": _name_startup_indexes(startup_indexes_order),
@@ -213,4 +211,5 @@ def _name_startup_indexes(idxs):
 
 def _startup_weights_from_order(order):
     ref = config.DEFAULT_STARTUP_FILTERS
+    # alt contains an alternative name for the index (valid python variable name)
     return {ref[key]['alt']: w for key, w in order.items()}

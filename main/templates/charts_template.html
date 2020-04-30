@@ -11,7 +11,6 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="form-group">
-                        <label for="chart-select">Example select</label>
                         <select class="form-control" id="chart-select">
                             {% for per in performance %}
                             <option id="index-n-{{per.performance_index_id}}" refers-to="{{per.performance_index_id}}"> {{per.performance_index}}</option>

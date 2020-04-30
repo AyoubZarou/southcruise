@@ -1,10 +1,9 @@
-from main.models import (Countries, CountryPerformance, PerformanceIndex,
-                            Startup, StartupPerformance, CountryNotation)
-from django.db.models import Q
 import pandas as pd
 
+from .models import CountryNotation
 
-def totals_from_weights(weights):
+
+def country_notation(weights):
 
     notation = CountryNotation.objects.values('country__country_code', 'index_id', 'note', 'country__country_name')
     notation = pd.DataFrame(notation)

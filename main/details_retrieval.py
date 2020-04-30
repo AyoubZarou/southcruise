@@ -118,7 +118,7 @@ def get_startup_data(record: Startup):
     structure = record.structure
     v = {key: val for key, val in locals().items() if key != "record"}
     startup_performance = record.startupperformance_set
-    fund_raising_set = startup_performance.filter(Q(index="func_raising"))
+    fund_raising_set = startup_performance.filter(Q(index="fund_raising"))
     v['nb_fund_raising_years'] = len(fund_raising_set)
     v['fund_raising_value'] = sum([r.value for r in fund_raising_set])
     return v
@@ -144,31 +144,28 @@ def aggregate_data_into_mark(data: dict, weights: dict, context: dict) -> int:
          "number_of_employees": _exp_law(data['nb_employees'], 100) if data['nb_employees'] else 0,
          "customers": _exp_law(data['customers'], 10000) if data['customers'] else 0,
          "nb_partnerships": _exp_law(data['nb_partnerships'], 4) if data['nb_partnerships'] else 0,
-         "country_performance": context['countries_notes'][data['country_code']]
+         "country_performance": context['countries_notes'][data['country_code']],
+         "nb_fund_raising_years": _exp_law(data['nb_fund_raising_years'], 3) if data['nb_fund_raising_years'] else 0,
+         "fund_raising_value": _exp_law(data['fund_raising_value'], 1_000_000) if data['fund_raising_value'] else 0,
+         "founders_mean_age_ob": _exp_law(data["founders_mean_age"], 40) if data['founders_mean_age']
+         else _exp_law(20, 40),
+         "founders_mean_age_yb": 1 - _exp_law(data["founders_mean_age"], 20) if data['founders_mean_age']
+         else 1 - _exp_law(40, 20),
          }
-    mark = 0
-    for key, val in weights.items():
-        if key not in d:
-            print(key)
-        else:
-            mark += d[key] * val
+    mark = sum([d[key] * val for key, val in weights.items() if key in d])
     return int(mark)
-
-
-def note_from_data_and_weights(data, weights):
-    s = sum(weights.values())
-    weights = {key: val / s for key, val in weights.items()}
-    mark = sum([weights[key] * data[key] for key in weights])
-    return mark
 
 
 def startup_filter_query(filter_object: dict) -> Q:
     """
     :param filter_object: a dict containing filters to apply to the startups,
-    :return:
+    :return: Q object with partial startup filter, that is used on the startup table to filter startups, the only part
+    not taken into account by this filter is the startup yearly performance (fund raising for example) and sectors,
+    these are being taken care of later
     """
 
     def exists_and_true(key: str) -> bool:
+        # check if a key is present in the filter object and if its value is True
         return key in filter_object and filter_object[key]
 
     if filter_object is None:
@@ -214,21 +211,21 @@ def startup_details(country_list: List[str], filter_object: dict = None,
     if "already_raised_funds" in filter_object and filter_object["already_raised_funds"]:
         def ff(ob):
             """filter function used to filter the data"""
-            return len(ob.startupperformance_set.filter(index="func_raising")) > 0
+            return len(ob.startupperformance_set.filter(index="fund_raising")) > 0
 
         startup_objects = [*filter(ff, startup_objects)]
     if 'sectors' in filter_object:
         selected_sectors = [sector for sector, value in filter_object['sectors'].items() if value]
-        print("selected sectors are", selected_sectors)
 
+        # filter function
         def ff(ob):
             sectors = [record['sector'] for record in ob.startupsector_set.all().values('sector')]
-            print(ob, sectors)
             isin = [sector in selected_sectors for sector in sectors]
             return sum(isin) > 0
 
         startup_objects = [*filter(ff, startup_objects)]
 
+    # selected fields for each startup
     raw_fields = ['name', 'capital', 'creation_date', 'number_of_employees', 'maturity', 'founder', 'customers',
                   'operationals', 'market_potential', 'investors', 'partnerships', 'innovation', 'impact', 'awards',
                   'growth_rate', 'reported_net_result', 'reported_net_debt', 'website', 'presentation',
@@ -250,7 +247,8 @@ def startup_details(country_list: List[str], filter_object: dict = None,
     return startups, create_frappe_dataset(startups, fields_to_display)
 
 
-def registered_company_details(country_list, filter_object=None, weights=None, context=None):
+def registered_company_details(country_list: List[str], filter_object: dict = None,
+                               weights: dict = None, context: dict = None):
     query = Q()
     for country in country_list:
         query = query | Q(country__country_code=country)
@@ -264,3 +262,16 @@ def registered_company_details(country_list, filter_object=None, weights=None, c
         companies.append({**selected_fields, **performance_set})
     fields_to_display = ['security', 'gics_sector', 'country__country_name', 'Company Market Cap (USD)']
     return companies, create_frappe_dataset(companies, fields_to_display)
+
+
+def get_registered_company_table() -> pd.DataFrame:
+    """
+    Get a pivoted table summarizing registred companies data
+    """
+    details = (pd.DataFrame(RegisteredCompanyPerformance.objects.all()
+                            .values('index', 'value', 'company__gics_sector', 'company__id',
+                                    'company__trbc_sector', 'company__security')))
+    details.columns = details.columns.str.lstrip('company__')
+    print(details.columns)
+    return pd.pivot_table(details, values=['value'], index=['id', 'security', 'gics_sector', 'trbc_sector'],
+                          columns=['index'])['value']
